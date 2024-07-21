@@ -16,30 +16,26 @@
   <meta name="author" content="kangkang">
   <meta name="keywords" content="hexo, blog, machine learning">
   
-    <meta name="description" content="GPT2模型原理的通俗理解GPT2和只带有解码器decoder的transformer模型很像. 它有超大规模,是一个在海量数据集上基于transformer解码器训练的模型.  BERT模型则是通过transformer编码器模块构建的.   通俗而言,gpt2就是根据现有句子,预测下一个单词会是什么. 它像传统的语言模型一样, 一次只输出一个单词token, 每次产生新单词后,该单词会被添加在">
+    <meta name="description" content="llama3模型的评估指标上一个博客概述了llama3模型的性能和创新点, 通俗理解llama3的性能和创新, 这里详细介绍llama3中的评估指标是什么, 如何实现的. llama3的evaluation的细节看这里: llama3_eval_details,  llama3的pre-trained和instruct-aligned模型的评估结果如下图: 为了能看懂图中的几个评测指标, 首先理解">
 <meta property="og:type" content="article">
-<meta property="og:title" content="GPT2模型原理的通俗理解">
-<meta property="og:url" content="https://kangkang37.github.io/2024/07/10/gpt01/index.html">
+<meta property="og:title" content="llama3模型的评估指标">
+<meta property="og:url" content="https://kangkang37.github.io/2024/07/21/llama3-eval/index.html">
 <meta property="og:site_name" content="康康博客">
-<meta property="og:description" content="GPT2模型原理的通俗理解GPT2和只带有解码器decoder的transformer模型很像. 它有超大规模,是一个在海量数据集上基于transformer解码器训练的模型.  BERT模型则是通过transformer编码器模块构建的.   通俗而言,gpt2就是根据现有句子,预测下一个单词会是什么. 它像传统的语言模型一样, 一次只输出一个单词token, 每次产生新单词后,该单词会被添加在">
+<meta property="og:description" content="llama3模型的评估指标上一个博客概述了llama3模型的性能和创新点, 通俗理解llama3的性能和创新, 这里详细介绍llama3中的评估指标是什么, 如何实现的. llama3的evaluation的细节看这里: llama3_eval_details,  llama3的pre-trained和instruct-aligned模型的评估结果如下图: 为了能看懂图中的几个评测指标, 首先理解">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://kangkang37.github.io/2024/07/10/gpt01/gpt0101.png">
-<meta property="og:image" content="https://kangkang37.github.io/2024/07/10/gpt01/gpt0102.png">
-<meta property="og:image" content="https://kangkang37.github.io/2024/07/10/gpt01/gpt0103.png">
-<meta property="og:image" content="https://kangkang37.github.io/2024/07/10/gpt01/gpt0104.png">
-<meta property="og:image" content="https://kangkang37.github.io/2024/07/10/gpt01/gpt0105.png">
-<meta property="og:image" content="https://kangkang37.github.io/2024/07/10/gpt01/gpt0106.png">
-<meta property="og:image" content="https://kangkang37.github.io/2024/07/10/gpt01/gpt0107.png">
-<meta property="article:published_time" content="2024-07-10T20:53:26.000Z">
-<meta property="article:modified_time" content="2024-07-10T22:08:04.930Z">
+<meta property="og:image" content="https://kangkang37.github.io/2024/07/21/llama3-eval/llama3/llama3-01.png">
+<meta property="og:image" content="https://kangkang37.github.io/2024/07/21/llama3-eval/llama3/llama3-03.png">
+<meta property="article:published_time" content="2024-07-21T04:06:47.000Z">
+<meta property="article:modified_time" content="2024-07-21T07:22:26.869Z">
 <meta property="article:author" content="kangkang">
-<meta property="article:tag" content="GPT">
+<meta property="article:tag" content="llama">
+<meta property="article:tag" content="待完成">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://kangkang37.github.io/2024/07/10/gpt01/gpt0101.png">
+<meta name="twitter:image" content="https://kangkang37.github.io/2024/07/21/llama3-eval/llama3/llama3-01.png">
   
   
   
-  <title>GPT2模型原理的通俗理解 - 康康博客</title>
+  <title>llama3模型的评估指标 - 康康博客</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -237,7 +233,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="GPT2模型原理的通俗理解"></span>
+            <span id="subtitle" data-typed-text="llama3模型的评估指标"></span>
           
         </div>
 
@@ -253,8 +249,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2024-07-10 16:53" pubdate>
-          2024年7月10日 下午
+        <time datetime="2024-07-21 00:06" pubdate>
+          2024年7月21日 凌晨
         </time>
       </span>
     
@@ -265,7 +261,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          1.5k 字
+          1.3k 字
         
       </span>
     
@@ -276,7 +272,7 @@
         
         
         
-          13 分钟
+          11 分钟
         
       </span>
     
@@ -321,12 +317,12 @@
       <div class="container nopadding-x-md" id="board-ctn">
         <div id="board">
           <article class="post-content mx-auto">
-            <h1 id="seo-header">GPT2模型原理的通俗理解</h1>
+            <h1 id="seo-header">llama3模型的评估指标</h1>
             
               <p id="updated-time" class="note note-info" style="">
                 
                   
-                    本文最后更新于 2024年7月10日晚上6点08分
+                    本文最后更新于 2024年7月21日凌晨3点22分
                   
                 
               </p>
@@ -334,26 +330,34 @@
             
               <div class="markdown-body">
                 
-                <h1 id="GPT2模型原理的通俗理解"><a href="#GPT2模型原理的通俗理解" class="headerlink" title="GPT2模型原理的通俗理解"></a>GPT2模型原理的通俗理解</h1><p>GPT2和只带有解码器decoder的transformer模型很像. 它有超大规模,是一个在海量数据集上基于transformer解码器训练的模型.  BERT模型则是通过transformer编码器模块构建的.  </p>
-<p>通俗而言,gpt2就是根据现有句子,预测下一个单词会是什么. 它像传统的语言模型一样, 一次只输出一个单词token, 每次产生新单词后,该单词会被添加在之前生成的单词序列之后, 这个序列会成为模型下一步的新输入. 这种机制叫做<u>自回归(auto-regression)</u>, 也是令RNN效果超群的重要思想.  BERT没有使用自回归机制, BERT获得了结合单词前后的上下文信息的能力, 也能取得很好的效果.  </p>
-<h2 id="浅析内部结构"><a href="#浅析内部结构" class="headerlink" title="浅析内部结构"></a>浅析内部结构</h2><p>下面看GPT2的内部结构, 它是如何工作的:<br>GPT-2最长可以处理1024个token的序列,每个token都会和它的前续路径一起‘流过’所有的decoder模块.<br>假设现在gpt2已经训练好了, 只需要提供一个预先定义好的起始单词(训练好的模型会使用endoftext作为起始单词,不妨称其为s), 然后让它自己生成文字.<br><img src="/2024/07/10/gpt01/gpt0101.png" srcset="/img/loading.gif" lazyload alt="输入一个起始单词s让其自己生成下一个单词"><br>此时, 模型的输入只有一个单词, 经过层层处理, 最终得到一个输出向量. 向量对词汇表中每个单词计算一个概率, 选择概率最高的单词作为输出单词, 假设‘The’作为输出.<br>但这样有一个问题: 它可能会陷入推荐同一个单词的循环中, 比如一直重复输出概率最高的单词‘The’, 只有选择概率第2或者第3的单词才能跳出这个循环.  所以, gpt2会有一个叫做‘top-k’的参数, 模型从概率前k的单词中随机抽取下一个单词.<br><img src="/2024/07/10/gpt01/gpt0102.png" srcset="/img/loading.gif" lazyload alt="生成单词The, 继续输入The预测下一个单词"></p>
-<h2 id="深入理解内部原理"><a href="#深入理解内部原理" class="headerlink" title="深入理解内部原理"></a>深入理解内部原理</h2><h3 id="嵌入矩阵和位置编码"><a href="#嵌入矩阵和位置编码" class="headerlink" title="嵌入矩阵和位置编码"></a>嵌入矩阵和位置编码</h3><p>模型首先输入一个句子, 句子先tokenizer分词(以subword为基本离散单位)为一个个子词subword, 每个子词用词表中的index表示, 词表大小为50257.<br>然后通过嵌入矩阵, 找到每个子词对应的词向量. 嵌入矩阵的行数=词表长度50257, 嵌入矩阵的列数=embedding size, 即每个子词对应的词向量的长度. 最小的gpt-small模型会有1*768的长度表示一个子词.<br><img src="/2024/07/10/gpt01/gpt0103.png" srcset="/img/loading.gif" lazyload alt="嵌入矩阵的结构, 各版本gpt对应的词向量长度"><br>嵌入矩阵的每一行都是一个词嵌入向量. 最开始, 需要从嵌入矩阵中找到起始单词s对应的词向量. 然后引入位置编码, 位置编码矩阵如下, 行数表示输入的context的长度(即一个句子分解为子词的个数), 列数同样为embedding size:<br><img src="/2024/07/10/gpt01/gpt0104.png" srcset="/img/loading.gif" lazyload alt="位置编码矩阵的结构"></p>
-<p>输入的单词经过嵌入矩阵和位置编码后, 进入transformer之前的步骤就完成了. 然后经过第一个transformer-decoder模块:<br>首先是自注意力层 masked self-attention, 然后传输给feed forward neural network.  第一个decoder模块完成后, 会把结果向量传给第二个decoder模块, 每个decoder模块的处理方式都是一样的, 但每个模块会维护自己的自注意力层和feed forward层的权重.  </p>
-<h3 id="自注意力机制"><a href="#自注意力机制" class="headerlink" title="自注意力机制"></a>自注意力机制</h3><p>从之前的attention帖子<a href="/2024/07/05/attention/" title="详细理解attention的原理">详细理解attention的原理</a>, 我们了解到自注意力机制的公式: </p>
-<script type="math/tex; mode=display">
-attention(Q,K,V)=softmax(\frac{QK^T}{\sqrt{d_k}})V</script><p>自注意力机制就是: 对序列中每个单词, 都赋予一个相关度得分$softmax(\frac{QK^T}{\sqrt{d_k}})$, 然后对他们的向量表征$V$乘以这个相关度得分, 即对向量表征加权求和, 所加的这个权重是相关度得分.  </p>
-<p>自注意力机制中的Query, Key和Value的含义: </p>
+                <h1 id="llama3模型的评估指标"><a href="#llama3模型的评估指标" class="headerlink" title="llama3模型的评估指标"></a>llama3模型的评估指标</h1><p>上一个博客概述了llama3模型的性能和创新点, <a href="/2024/07/20/llama3/" title="通俗理解llama3的性能和创新">通俗理解llama3的性能和创新</a>, 这里详细介绍llama3中的评估指标是什么, 如何实现的.</p>
+<p>llama3的evaluation的细节看这里: <a target="_blank" rel="noopener" href="https://github.com/meta-llama/llama3/blob/main/eval_details.md">llama3_eval_details</a>, </p>
+<p>llama3的pre-trained和instruct-aligned模型的评估结果如下图:<br><img src="llama3/llama3-01.png" srcset="/img/loading.gif" lazyload alt="图1: llama3的pre-trained模型的评估结果"><br><img src="llama3/llama3-03.png" srcset="/img/loading.gif" lazyload alt="图2: llama3的instruct模型的评估结果"></p>
+<p>为了能看懂图中的几个评测指标, 首先理解这几个概念:</p>
+<h2 id="zero-shot和few-shot"><a href="#zero-shot和few-shot" class="headerlink" title="zero-shot和few-shot"></a>zero-shot和few-shot</h2><h3 id="zero-shot-learning零样本学习"><a href="#zero-shot-learning零样本学习" class="headerlink" title="zero-shot learning零样本学习"></a>zero-shot learning零样本学习</h3><p>论文: <a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1707.00600v4">Zero-Shot Learning - A Comprehensive Evaluation of the Good, the Bad and the Ugly</a></p>
+<p>零样本学习, 让模型能对从未见过的对象进行分类, 让机器具有推理能力. 具体地, 训练集数据和测试集数据没有交集, 利用训练集训练模型后, 让模型对测试集的从未见过的对象能进行分类. zero-shot是指要分类的对象是一次也不学习的. </p>
+<p>例子: 训练集包含马/老虎/熊猫的样本和对应标签, 以及马/老虎/熊猫的描述, 让模型能学会识别马/老虎/熊猫; 训练集还有斑马的描述, 但是没有斑马样本. 然后测试集中的给出一个斑马样本, 模型尽管没见过斑马, 也能识别这个图片是斑马. </p>
+<p>这就是让模型具有了推理能力. 利用过去的知识, 推理出新对象的具体形态, 从而对从未见过的类别进行辨认. zero-shot learning让模型具有辨认新事物的能力.</p>
+<h3 id="one-shot-learning-单样本学习"><a href="#one-shot-learning-单样本学习" class="headerlink" title="one-shot learning 单样本学习"></a>one-shot learning 单样本学习</h3><p>one-shot learning是指这个类别的训练样本只有一个, 依然能对这个类别做到预测. </p>
+<p>因为在大数据集上学到了general knowledge, 即一个映射$X-&gt;Y$, 其中类别X有很多训练数据, 类别Y只有一个训练样本. 尽管Y很少, 但是因为学习到了映射$X-&gt;Y$, 也就能实现对小数据Y的预测.</p>
+<p>one-shot learning的意义:</p>
 <ul>
-<li>Query查询向量: 当前单词的查询向量被用来和其它单词的键向量相乘，从而得到其它词相对于当前词的注意力得分。只关心目前正在处理的单词的查询向量。</li>
-<li>Key键向量: 键向量就像是序列中每个单词的标签，它使搜索相关单词时用来匹配的对象。</li>
-<li>Value值向量: 值向量是单词真正的表征，当算出注意力得分后，使用值向量进行加权求和得到能代表当前位置上下文的向量。</li>
+<li>减少训练数据. 深度学习通常需要很多数据, 但是one-shot能让某个类别的训练数据减少到一个.</li>
+<li>新类别数据出现时, 无需重新训练. 传统的NN网络, 在新类别出现后需要重新对所有类别训练, 但是one-shot learning只需要对新增类别训练即可.</li>
 </ul>
-<p><img src="/2024/07/10/gpt01/gpt0105.png" srcset="/img/loading.gif" lazyload alt="自注意力机制比喻: 在档案柜中找文件"><br>一个简单粗暴的比喻是在档案柜中找文件。查询向量就像一张便利贴，上面写着你正在研究的课题。键向量像是档案柜中文件夹上贴的标签。当你找到和便利贴上所写相匹配的文件夹时，拿出它，文件夹里的东西便是值向量。</p>
-<p>将单词的查询向量分别乘以每个文件夹的键向量，得到各个文件夹对应的注意力得分（这里的乘指的是向量点乘，乘积会通过 softmax 函数处理）。</p>
-<p>将每个文件夹的值向量乘以其对应的注意力得分，然后求和，得到最终自注意力层的输出。<br><img src="/2024/07/10/gpt01/gpt0106.png" srcset="/img/loading.gif" lazyload alt="值向量的加权求和, 权重是注意力得分"></p>
-<h3 id="模型输出"><a href="#模型输出" class="headerlink" title="模型输出"></a>模型输出</h3><p>向量经过自注意力机制和feed forward层后,得到输出向量, 这个向量和嵌入矩阵相乘, 得到词汇表中每个单词的注意力得分. 因为嵌入矩阵$M$大小为$50257 \times 768$, 输出向量$X$的大小: $1\times 768$, $size (M \times X^T) = 50257 \times 1$.<br>选取得分最高的单词为输出结果(top-k=1时). 但更好的策略是选择得分较高的一部分单词,将他们的得分作为概率从整个单词表中抽样(得分高的单词更容易选中). 一般的, top-k=40.<br><img src="/2024/07/10/gpt01/gpt0107.png" srcset="/img/loading.gif" lazyload alt="输出向量和嵌入矩阵相乘得到每个单词概率"><br>以上, 模型完成了一次迭代. 模型不断迭代直到生成一个完成序列, 序列得到1024或者生成终止符. </p>
-<h2 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h2><p>BERT模型的原理结构<br>代码中的gpt2</p>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p>中文博客园: <a target="_blank" rel="noopener" href="https://www.cnblogs.com/zhongzhaoxie/p/13064404.html">GPT-2通俗理解</a><br>Jay Alammar博客: <a target="_blank" rel="noopener" href="https://jalammar.github.io/illustrated-transformer/">The Illustrated Transformer</a></p>
+<p>one-shot learning是few-shot learning的一种特殊情况.</p>
+<h3 id="few-shot-learning-小样本学习"><a href="#few-shot-learning-小样本学习" class="headerlink" title="few-shot learning 小样本学习"></a>few-shot learning 小样本学习</h3><p>训练集中某些类别的样本只有少量, 就是few-shot learning. </p>
+<h3 id="zero-shot和few-shot的区别"><a href="#zero-shot和few-shot的区别" class="headerlink" title="zero-shot和few-shot的区别"></a>zero-shot和few-shot的区别</h3><p>小样本学习是使用少量训练数据来获得准确分类预测效果. 零样本学习是让模型预测从未出现的类别. </p>
+<h2 id="MMLU评测指标"><a href="#MMLU评测指标" class="headerlink" title="MMLU评测指标"></a>MMLU评测指标</h2><p>MMLU(Mean Multi-Language Understanding)多语言理解均值, 是衡量大语言模型在多语言方面的能力的基准测试. 避免仅关注主流语言而对其他语言置之不理, 对构建普适性的多语言模型至关重要. 它通常包含多种不同的语言任务, 如文本分类/问答/摘要生成等, 对多种语言进行测试.</p>
+<p>为了计算MMLU, 首先分别计算各种语言在该任务上的性能, 获得准确率/召回率/F1分数等指标, 针对每种语言计算在该任务的性能均值. 然后对所有语言的均值进行加权平均, 得到全局MMLU.</p>
+<p>举例来说，假设有一个大型语言模型在英语、中文和德语上进行了文本分类任务的评估。模型在英语上的准确率为0.7，中文为0.6，德语为0.5。那么，MMLU就是这三个语言准确率的加权平均值。如果英语、中文和德语的权重分别为0.4、0.3和0.3，那么 MMLU 就是 $0.4\times 0.7 + 0.3 \times 0.6 + 0.3 \times 0.5 = 0.61$。</p>
+<p>实际应用中, MMLU会针对不同任务而设定不同权重, 以适应特定场景需求.</p>
+<h2 id="GPQA评测"><a href="#GPQA评测" class="headerlink" title="GPQA评测"></a>GPQA评测</h2><p>GPQA(Grade School Physics Question Answering), 是一个Google验证问答的基准测试, 评估模型在生物/物理/化学等学科领域的深入程度. 该数据集包含448个多项选择题, 这些问题难度很高, 即使是相关学科博士专家回答, 也只有65%正确率, 非专家的正确率低至34%.</p>
+<h2 id="HumanEval评估"><a href="#HumanEval评估" class="headerlink" title="HumanEval评估"></a>HumanEval评估</h2><p>HumanEval是一个评估工具, 评估模型在代码任务上的性能. HuamnEval会模拟人类, 对模型生成的代码进行评估.</p>
+<h2 id="GSM基准测试"><a href="#GSM基准测试" class="headerlink" title="GSM基准测试"></a>GSM基准测试</h2><p>GSM(Grade School Math)是小学数学数据的基准测试, 评估模型在处理小学数学上的能力.</p>
+<h2 id="MATH评测"><a href="#MATH评测" class="headerlink" title="MATH评测"></a>MATH评测</h2><p>MATH数据集用于衡量LLM的解决数学问题的能力. 这个数据集包含各种数学问题, 从基础算数到高级概念. 用于测试模型是否可以正确理解数学问题并给出准确解答.</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考:"></a>参考:</h2><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/zcyzcyjava/article/details/127006287">CSDN: 什么是zero-shot, one-shot和few-shot Learning</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.ctyun.cn/developer/article/503404435451973">什么是衡量大语言模型能力的MMLU参数指标</a></p>
 
                 
               </div>
@@ -377,7 +381,7 @@ attention(Q,K,V)=softmax(\frac{QK^T}{\sqrt{d_k}})V</script><p>自注意力机制
   
     <span>></span>
     
-  <a href="/categories/ML%E5%B8%B8%E8%A7%81%E6%A8%A1%E5%9E%8B/GPT/" class="category-chain-item">GPT</a>
+  <a href="/categories/ML%E5%B8%B8%E8%A7%81%E6%A8%A1%E5%9E%8B/llama/" class="category-chain-item">llama</a>
   
   
 
@@ -394,7 +398,9 @@ attention(Q,K,V)=softmax(\frac{QK^T}{\sqrt{d_k}})V</script><p>自注意力机制
     <div class="post-meta">
       <i class="iconfont icon-tags"></i>
       
-        <a href="/tags/GPT/" class="print-no-link">#GPT</a>
+        <a href="/tags/llama/" class="print-no-link">#llama</a>
+      
+        <a href="/tags/%E5%BE%85%E5%AE%8C%E6%88%90/" class="print-no-link">#待完成</a>
       
     </div>
   
@@ -406,8 +412,8 @@ attention(Q,K,V)=softmax(\frac{QK^T}{\sqrt{d_k}})V</script><p>自注意力机制
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>GPT2模型原理的通俗理解</div>
-      <div>https://kangkang37.github.io/2024/07/10/gpt01/</div>
+      <div>llama3模型的评估指标</div>
+      <div>https://kangkang37.github.io/2024/07/21/llama3-eval/</div>
     </div>
     <div class="license-meta">
       
@@ -419,7 +425,7 @@ attention(Q,K,V)=softmax(\frac{QK^T}{\sqrt{d_k}})V</script><p>自注意力机制
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2024年7月10日</div>
+          <div>2024年7月21日</div>
         </div>
       
       
@@ -451,18 +457,12 @@ attention(Q,K,V)=softmax(\frac{QK^T}{\sqrt{d_k}})V</script><p>自注意力机制
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2024/07/19/loss-func/" title="常见损失函数介绍">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">常见损失函数介绍</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2024/07/10/papers-paper-pim/" title="HMA论文-存内计算方向">
-                        <span class="hidden-mobile">HMA论文-存内计算方向</span>
+                      <a href="/2024/07/20/terms01/" title="ML专业术语I——instruct学习, prompt学习和MLLM优化">
+                        <span class="hidden-mobile">ML专业术语I——instruct学习, prompt学习和MLLM优化</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>

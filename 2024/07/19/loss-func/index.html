@@ -16,30 +16,24 @@
   <meta name="author" content="kangkang">
   <meta name="keywords" content="hexo, blog, machine learning">
   
-    <meta name="description" content="GPT2模型原理的通俗理解GPT2和只带有解码器decoder的transformer模型很像. 它有超大规模,是一个在海量数据集上基于transformer解码器训练的模型.  BERT模型则是通过transformer编码器模块构建的.   通俗而言,gpt2就是根据现有句子,预测下一个单词会是什么. 它像传统的语言模型一样, 一次只输出一个单词token, 每次产生新单词后,该单词会被添加在">
+    <meta name="description" content="常见损失函数损失函数就是用于计算预测label和真实label之间差距的函数. MSE损失函数MSE是mean squared error, 均方误差损失函数. 求两个向量的差的平方之和, 再对batch size&#x3D;n求均值. 公式如下:   MSE &#x3D; \frac{1}{n}\sum_{i&#x3D;1}^n(\hat y_i - y_i)^2&#x3D;\frac{1}{n}\sum_{i&#x3D;1}^n(\sum_{">
 <meta property="og:type" content="article">
-<meta property="og:title" content="GPT2模型原理的通俗理解">
-<meta property="og:url" content="https://kangkang37.github.io/2024/07/10/gpt01/index.html">
+<meta property="og:title" content="常见损失函数介绍">
+<meta property="og:url" content="https://kangkang37.github.io/2024/07/19/loss-func/index.html">
 <meta property="og:site_name" content="康康博客">
-<meta property="og:description" content="GPT2模型原理的通俗理解GPT2和只带有解码器decoder的transformer模型很像. 它有超大规模,是一个在海量数据集上基于transformer解码器训练的模型.  BERT模型则是通过transformer编码器模块构建的.   通俗而言,gpt2就是根据现有句子,预测下一个单词会是什么. 它像传统的语言模型一样, 一次只输出一个单词token, 每次产生新单词后,该单词会被添加在">
+<meta property="og:description" content="常见损失函数损失函数就是用于计算预测label和真实label之间差距的函数. MSE损失函数MSE是mean squared error, 均方误差损失函数. 求两个向量的差的平方之和, 再对batch size&#x3D;n求均值. 公式如下:   MSE &#x3D; \frac{1}{n}\sum_{i&#x3D;1}^n(\hat y_i - y_i)^2&#x3D;\frac{1}{n}\sum_{i&#x3D;1}^n(\sum_{">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://kangkang37.github.io/2024/07/10/gpt01/gpt0101.png">
-<meta property="og:image" content="https://kangkang37.github.io/2024/07/10/gpt01/gpt0102.png">
-<meta property="og:image" content="https://kangkang37.github.io/2024/07/10/gpt01/gpt0103.png">
-<meta property="og:image" content="https://kangkang37.github.io/2024/07/10/gpt01/gpt0104.png">
-<meta property="og:image" content="https://kangkang37.github.io/2024/07/10/gpt01/gpt0105.png">
-<meta property="og:image" content="https://kangkang37.github.io/2024/07/10/gpt01/gpt0106.png">
-<meta property="og:image" content="https://kangkang37.github.io/2024/07/10/gpt01/gpt0107.png">
-<meta property="article:published_time" content="2024-07-10T20:53:26.000Z">
-<meta property="article:modified_time" content="2024-07-10T22:08:04.930Z">
+<meta property="og:image" content="https://kangkang37.github.io/2024/07/19/loss-func/loss01.png">
+<meta property="article:published_time" content="2024-07-20T01:20:22.000Z">
+<meta property="article:modified_time" content="2024-07-20T02:36:18.993Z">
 <meta property="article:author" content="kangkang">
-<meta property="article:tag" content="GPT">
+<meta property="article:tag" content="损失函数">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://kangkang37.github.io/2024/07/10/gpt01/gpt0101.png">
+<meta name="twitter:image" content="https://kangkang37.github.io/2024/07/19/loss-func/loss01.png">
   
   
   
-  <title>GPT2模型原理的通俗理解 - 康康博客</title>
+  <title>常见损失函数介绍 - 康康博客</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -237,7 +231,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="GPT2模型原理的通俗理解"></span>
+            <span id="subtitle" data-typed-text="常见损失函数介绍"></span>
           
         </div>
 
@@ -253,8 +247,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2024-07-10 16:53" pubdate>
-          2024年7月10日 下午
+        <time datetime="2024-07-19 21:20" pubdate>
+          2024年7月19日 晚上
         </time>
       </span>
     
@@ -265,7 +259,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          1.5k 字
+          1.3k 字
         
       </span>
     
@@ -276,7 +270,7 @@
         
         
         
-          13 分钟
+          11 分钟
         
       </span>
     
@@ -321,12 +315,12 @@
       <div class="container nopadding-x-md" id="board-ctn">
         <div id="board">
           <article class="post-content mx-auto">
-            <h1 id="seo-header">GPT2模型原理的通俗理解</h1>
+            <h1 id="seo-header">常见损失函数介绍</h1>
             
               <p id="updated-time" class="note note-info" style="">
                 
                   
-                    本文最后更新于 2024年7月10日晚上6点08分
+                    本文最后更新于 2024年7月19日晚上10点36分
                   
                 
               </p>
@@ -334,26 +328,48 @@
             
               <div class="markdown-body">
                 
-                <h1 id="GPT2模型原理的通俗理解"><a href="#GPT2模型原理的通俗理解" class="headerlink" title="GPT2模型原理的通俗理解"></a>GPT2模型原理的通俗理解</h1><p>GPT2和只带有解码器decoder的transformer模型很像. 它有超大规模,是一个在海量数据集上基于transformer解码器训练的模型.  BERT模型则是通过transformer编码器模块构建的.  </p>
-<p>通俗而言,gpt2就是根据现有句子,预测下一个单词会是什么. 它像传统的语言模型一样, 一次只输出一个单词token, 每次产生新单词后,该单词会被添加在之前生成的单词序列之后, 这个序列会成为模型下一步的新输入. 这种机制叫做<u>自回归(auto-regression)</u>, 也是令RNN效果超群的重要思想.  BERT没有使用自回归机制, BERT获得了结合单词前后的上下文信息的能力, 也能取得很好的效果.  </p>
-<h2 id="浅析内部结构"><a href="#浅析内部结构" class="headerlink" title="浅析内部结构"></a>浅析内部结构</h2><p>下面看GPT2的内部结构, 它是如何工作的:<br>GPT-2最长可以处理1024个token的序列,每个token都会和它的前续路径一起‘流过’所有的decoder模块.<br>假设现在gpt2已经训练好了, 只需要提供一个预先定义好的起始单词(训练好的模型会使用endoftext作为起始单词,不妨称其为s), 然后让它自己生成文字.<br><img src="/2024/07/10/gpt01/gpt0101.png" srcset="/img/loading.gif" lazyload alt="输入一个起始单词s让其自己生成下一个单词"><br>此时, 模型的输入只有一个单词, 经过层层处理, 最终得到一个输出向量. 向量对词汇表中每个单词计算一个概率, 选择概率最高的单词作为输出单词, 假设‘The’作为输出.<br>但这样有一个问题: 它可能会陷入推荐同一个单词的循环中, 比如一直重复输出概率最高的单词‘The’, 只有选择概率第2或者第3的单词才能跳出这个循环.  所以, gpt2会有一个叫做‘top-k’的参数, 模型从概率前k的单词中随机抽取下一个单词.<br><img src="/2024/07/10/gpt01/gpt0102.png" srcset="/img/loading.gif" lazyload alt="生成单词The, 继续输入The预测下一个单词"></p>
-<h2 id="深入理解内部原理"><a href="#深入理解内部原理" class="headerlink" title="深入理解内部原理"></a>深入理解内部原理</h2><h3 id="嵌入矩阵和位置编码"><a href="#嵌入矩阵和位置编码" class="headerlink" title="嵌入矩阵和位置编码"></a>嵌入矩阵和位置编码</h3><p>模型首先输入一个句子, 句子先tokenizer分词(以subword为基本离散单位)为一个个子词subword, 每个子词用词表中的index表示, 词表大小为50257.<br>然后通过嵌入矩阵, 找到每个子词对应的词向量. 嵌入矩阵的行数=词表长度50257, 嵌入矩阵的列数=embedding size, 即每个子词对应的词向量的长度. 最小的gpt-small模型会有1*768的长度表示一个子词.<br><img src="/2024/07/10/gpt01/gpt0103.png" srcset="/img/loading.gif" lazyload alt="嵌入矩阵的结构, 各版本gpt对应的词向量长度"><br>嵌入矩阵的每一行都是一个词嵌入向量. 最开始, 需要从嵌入矩阵中找到起始单词s对应的词向量. 然后引入位置编码, 位置编码矩阵如下, 行数表示输入的context的长度(即一个句子分解为子词的个数), 列数同样为embedding size:<br><img src="/2024/07/10/gpt01/gpt0104.png" srcset="/img/loading.gif" lazyload alt="位置编码矩阵的结构"></p>
-<p>输入的单词经过嵌入矩阵和位置编码后, 进入transformer之前的步骤就完成了. 然后经过第一个transformer-decoder模块:<br>首先是自注意力层 masked self-attention, 然后传输给feed forward neural network.  第一个decoder模块完成后, 会把结果向量传给第二个decoder模块, 每个decoder模块的处理方式都是一样的, 但每个模块会维护自己的自注意力层和feed forward层的权重.  </p>
-<h3 id="自注意力机制"><a href="#自注意力机制" class="headerlink" title="自注意力机制"></a>自注意力机制</h3><p>从之前的attention帖子<a href="/2024/07/05/attention/" title="详细理解attention的原理">详细理解attention的原理</a>, 我们了解到自注意力机制的公式: </p>
+                <h1 id="常见损失函数"><a href="#常见损失函数" class="headerlink" title="常见损失函数"></a>常见损失函数</h1><p>损失函数就是用于计算预测label和真实label之间差距的函数.</p>
+<h2 id="MSE损失函数"><a href="#MSE损失函数" class="headerlink" title="MSE损失函数"></a>MSE损失函数</h2><p>MSE是mean squared error, 均方误差损失函数. 求两个向量的差的平方之和, 再对batch size=n求均值. 公式如下: </p>
 <script type="math/tex; mode=display">
-attention(Q,K,V)=softmax(\frac{QK^T}{\sqrt{d_k}})V</script><p>自注意力机制就是: 对序列中每个单词, 都赋予一个相关度得分$softmax(\frac{QK^T}{\sqrt{d_k}})$, 然后对他们的向量表征$V$乘以这个相关度得分, 即对向量表征加权求和, 所加的这个权重是相关度得分.  </p>
-<p>自注意力机制中的Query, Key和Value的含义: </p>
+MSE = \frac{1}{n}\sum_{i=1}^n(\hat y_i - y_i)^2=\frac{1}{n}\sum_{i=1}^n(\sum_{j=1}^M(\hat y_i^j - y_i^j)^2)</script><p>其中$y_i$是真实label向量, 是$\hat y_i$预测label向量, 向量大小是1*m, batch size=n.<br>如果batch size=1, 就是真实向量和预测向量的对应元素之差的平方, 再对所有m个位置求和. </p>
+<p>MSE特点: </p>
 <ul>
-<li>Query查询向量: 当前单词的查询向量被用来和其它单词的键向量相乘，从而得到其它词相对于当前词的注意力得分。只关心目前正在处理的单词的查询向量。</li>
-<li>Key键向量: 键向量就像是序列中每个单词的标签，它使搜索相关单词时用来匹配的对象。</li>
-<li>Value值向量: 值向量是单词真正的表征，当算出注意力得分后，使用值向量进行加权求和得到能代表当前位置上下文的向量。</li>
+<li>损失函数的曲线光滑可导, 随着误差的减小, 梯度也减小, 利于函数收敛.</li>
+<li>平方项, 对大误差有大的惩罚力度, 对小误差有小的惩罚力度.</li>
+<li>如果样本中有离群点, MSE会给离群点赋予更高的权重，但是却是以牺牲其他正常数据点的预测效果为代价，这最终会降低模型的整体性能。</li>
 </ul>
-<p><img src="/2024/07/10/gpt01/gpt0105.png" srcset="/img/loading.gif" lazyload alt="自注意力机制比喻: 在档案柜中找文件"><br>一个简单粗暴的比喻是在档案柜中找文件。查询向量就像一张便利贴，上面写着你正在研究的课题。键向量像是档案柜中文件夹上贴的标签。当你找到和便利贴上所写相匹配的文件夹时，拿出它，文件夹里的东西便是值向量。</p>
-<p>将单词的查询向量分别乘以每个文件夹的键向量，得到各个文件夹对应的注意力得分（这里的乘指的是向量点乘，乘积会通过 softmax 函数处理）。</p>
-<p>将每个文件夹的值向量乘以其对应的注意力得分，然后求和，得到最终自注意力层的输出。<br><img src="/2024/07/10/gpt01/gpt0106.png" srcset="/img/loading.gif" lazyload alt="值向量的加权求和, 权重是注意力得分"></p>
-<h3 id="模型输出"><a href="#模型输出" class="headerlink" title="模型输出"></a>模型输出</h3><p>向量经过自注意力机制和feed forward层后,得到输出向量, 这个向量和嵌入矩阵相乘, 得到词汇表中每个单词的注意力得分. 因为嵌入矩阵$M$大小为$50257 \times 768$, 输出向量$X$的大小: $1\times 768$, $size (M \times X^T) = 50257 \times 1$.<br>选取得分最高的单词为输出结果(top-k=1时). 但更好的策略是选择得分较高的一部分单词,将他们的得分作为概率从整个单词表中抽样(得分高的单词更容易选中). 一般的, top-k=40.<br><img src="/2024/07/10/gpt01/gpt0107.png" srcset="/img/loading.gif" lazyload alt="输出向量和嵌入矩阵相乘得到每个单词概率"><br>以上, 模型完成了一次迭代. 模型不断迭代直到生成一个完成序列, 序列得到1024或者生成终止符. </p>
-<h2 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h2><p>BERT模型的原理结构<br>代码中的gpt2</p>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p>中文博客园: <a target="_blank" rel="noopener" href="https://www.cnblogs.com/zhongzhaoxie/p/13064404.html">GPT-2通俗理解</a><br>Jay Alammar博客: <a target="_blank" rel="noopener" href="https://jalammar.github.io/illustrated-transformer/">The Illustrated Transformer</a></p>
+<h2 id="MAE平均绝对误差"><a href="#MAE平均绝对误差" class="headerlink" title="MAE平均绝对误差"></a>MAE平均绝对误差</h2><p>MAE: Mean absolute error, </p>
+<script type="math/tex; mode=display">
+MAE =  \frac{1}{n} \sum_{i=1}^n |\hat y_i - y_i |</script><p>其中$y_i$是真实label向量, 是$\hat y_i$预测label向量, batch size=n. 向量对应元素之差的绝对值求和, 再在batch size维度求平均值. </p>
+<p>特点: </p>
+<ul>
+<li>曲线呈现V形状，连续但在$\hat y_i - y_i =0$处不可导，计算机求解导数比较困难。而且 MAE 大部分情况下梯度都是相等的，这意味着即使对于小的损失值，其梯度也是大的。这不利于函数的收敛和模型的学习。</li>
+<li>对离群点不敏感。没有平方项，惩罚力度一样。而MSE对离群点敏感。<br><img src="/2024/07/19/loss-func/loss01.png" srcset="/img/loading.gif" lazyload alt="MAE对离群点不敏感, MSE对离群点敏感"></li>
+</ul>
+<h2 id="CE交叉熵损失函数"><a href="#CE交叉熵损失函数" class="headerlink" title="CE交叉熵损失函数"></a>CE交叉熵损失函数</h2><p>CE: cross entropy loss, 公式: </p>
+<script type="math/tex; mode=display">
+L=-\frac{1}{n}\sum_i y_i \log p_i =-\frac{1}{n}\sum_i \sum_{j=1}^m y_i^j \log p_i^j</script><p>其中batch size=n, m是分类数 即向量是1*m大小的. $y_i$是真实向量, $p_i$是预测向量. $y_i^j$表示向量的第j个元素.</p>
+<p>经常会提到CE和最大似然法的关系, 在面试中也可能问道. 什么事最大似然法, 以及CE和它到底有什么关系? 具体看这个博客: <a href="/2024/07/19/likelihood/" title="最大似然估计和CE的关系">最大似然估计和CE的关系</a></p>
+<h2 id="infoNCE损失函数"><a href="#infoNCE损失函数" class="headerlink" title="infoNCE损失函数"></a>infoNCE损失函数</h2><p>infoNCE和CE loss很像. infoNCE在MoCo论文当中使用, 是无监督对比学习方法用到的损失函数. 公式: </p>
+<script type="math/tex; mode=display">
+L_q = - \log \frac{e^{q\cdot k_{+} / \tau }}{\sum_{i=0}^K e^{q\cdot k_i/\tau}}</script><p>其中q和k+互为正样本对, 是从同一个图片经过不同图片增强得到的向量, q和k-互为负样本对, 是不同图片对应的向量. 一共有K个k- (negative key).<br>用向量点乘(对应元素之积的和)表示两个向量的相似性, 如分子中的$q\cdot k_{+}$越大表示这个正样本对越相似, 分母中是K个负样本对的点乘之和加上$q\cdot k_{+}$, 分母一共有K+1项.<br>其中$\tau$是温度系数.</p>
+<h3 id="CE和infoNCE的区别"><a href="#CE和infoNCE的区别" class="headerlink" title="CE和infoNCE的区别:"></a>CE和infoNCE的区别:</h3><p>在计算交叉熵损失函数CE之前, 一般会让预测向量经过一个softmax变为概率预测向量, 如果是一个K+1分类问题, 真实label向量形如$y=[1,0,0…,0]$, 而预测向量形如$\hat y = [y^0, y^1, …, y^{K}]$, 经过softmax后</p>
+<script type="math/tex; mode=display">
+p=softmax(\hat y) = [\frac{e^{y^0}}{\sum e^{y^i}},\frac{e^{y^1}}{\sum e^{y^i}}, ..., \frac{e^{y^K}}{\sum e^{y^i}} ]</script><p>假设batch size=1, 求CE: </p>
+<script type="math/tex; mode=display">
+H(y, p) = - \sum_{i=0}^K y^i \log p^i = - log p^0 =- \log \frac{e^{y^0}}{\sum_{i=0}^K e^{y^i}}</script><p>和上面的infoNCE公式很像.  </p>
+<p><strong>CE和infoNCE的区别: </strong><br>CE中, 真实向量是一个one-hot向量, 长度是分类数.</p>
+<p>无监督的对比学习没有真实label向量, 所以infoNCE中的K不是分类数, 而是表示的negative key的个数, 用长度为K的queue来存储负样本向量k-.</p>
+<p>infoNCE可以看做特殊的CE, 即分类数为K+1, 且真实类别是index=0处的分类任务. </p>
+<p>总结一下, CE和infoNCE的区别: </p>
+<ul>
+<li>CE用于分类任务时, 是有标签数据, K表示类别数; 而infoNCE用于无监督的对比学习, 是无标签数据, K表示negtive key的个数.</li>
+<li>infoNCE把k+和K个k-向量拼起来, k+在index=0的位置, 得到长度为K+1的序列, 可以理解为: 真实类别为0的K+1分类任务.</li>
+</ul>
+<p><strong>温度系数$\tau$的作用: </strong><br>$\tau$是超参数, 很重要. 温度系数用于控制预测向量logits的分布形状. </p>
+<p>如果$\tau$很大, 则$q\cdot k / \tau$变小, logits分布变平滑, 对比损失函数对所有负样本一视同仁, 不会特别关注某个负样本, 模型的学习没有轻重.</p>
+<p>相反地，如果$\tau$变小，logits分布的值$q\cdot k / \tau$变大，分布变得更不均匀，更peak。模型会特别关注困难的负样本（也就是$q\cdot k$更大的样本对，也就是潜在的正样本对），导致模型收敛困难，泛化能力差。</p>
+<p>总之，温度系数的作用就是它控制了模型对负样本的区分度。</p>
 
                 
               </div>
@@ -372,12 +388,12 @@ attention(Q,K,V)=softmax(\frac{QK^T}{\sqrt{d_k}})V</script><p>自注意力机制
     
       <span class="category-chain">
         
-  <a href="/categories/ML%E5%B8%B8%E8%A7%81%E6%A8%A1%E5%9E%8B/" class="category-chain-item">ML常见模型</a>
+  <a href="/categories/ML%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" class="category-chain-item">ML基础知识</a>
   
   
     <span>></span>
     
-  <a href="/categories/ML%E5%B8%B8%E8%A7%81%E6%A8%A1%E5%9E%8B/GPT/" class="category-chain-item">GPT</a>
+  <a href="/categories/ML%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/%E6%8D%9F%E5%A4%B1%E5%87%BD%E6%95%B0/" class="category-chain-item">损失函数</a>
   
   
 
@@ -394,7 +410,7 @@ attention(Q,K,V)=softmax(\frac{QK^T}{\sqrt{d_k}})V</script><p>自注意力机制
     <div class="post-meta">
       <i class="iconfont icon-tags"></i>
       
-        <a href="/tags/GPT/" class="print-no-link">#GPT</a>
+        <a href="/tags/%E6%8D%9F%E5%A4%B1%E5%87%BD%E6%95%B0/" class="print-no-link">#损失函数</a>
       
     </div>
   
@@ -406,8 +422,8 @@ attention(Q,K,V)=softmax(\frac{QK^T}{\sqrt{d_k}})V</script><p>自注意力机制
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>GPT2模型原理的通俗理解</div>
-      <div>https://kangkang37.github.io/2024/07/10/gpt01/</div>
+      <div>常见损失函数介绍</div>
+      <div>https://kangkang37.github.io/2024/07/19/loss-func/</div>
     </div>
     <div class="license-meta">
       
@@ -419,7 +435,7 @@ attention(Q,K,V)=softmax(\frac{QK^T}{\sqrt{d_k}})V</script><p>自注意力机制
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2024年7月10日</div>
+          <div>2024年7月19日</div>
         </div>
       
       
@@ -451,9 +467,9 @@ attention(Q,K,V)=softmax(\frac{QK^T}{\sqrt{d_k}})V</script><p>自注意力机制
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2024/07/19/loss-func/" title="常见损失函数介绍">
+                      <a href="/2024/07/19/likelihood/" title="最大似然估计和CE的关系">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">常见损失函数介绍</span>
+                        <span class="hidden-mobile">最大似然估计和CE的关系</span>
                         <span class="visible-mobile">上一篇</span>
                       </a>
                     
@@ -461,8 +477,8 @@ attention(Q,K,V)=softmax(\frac{QK^T}{\sqrt{d_k}})V</script><p>自注意力机制
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2024/07/10/papers-paper-pim/" title="HMA论文-存内计算方向">
-                        <span class="hidden-mobile">HMA论文-存内计算方向</span>
+                      <a href="/2024/07/10/gpt01/" title="GPT2模型原理的通俗理解">
+                        <span class="hidden-mobile">GPT2模型原理的通俗理解</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>

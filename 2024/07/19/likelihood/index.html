@@ -16,30 +16,22 @@
   <meta name="author" content="kangkang">
   <meta name="keywords" content="hexo, blog, machine learning">
   
-    <meta name="description" content="GPT2模型原理的通俗理解GPT2和只带有解码器decoder的transformer模型很像. 它有超大规模,是一个在海量数据集上基于transformer解码器训练的模型.  BERT模型则是通过transformer编码器模块构建的.   通俗而言,gpt2就是根据现有句子,预测下一个单词会是什么. 它像传统的语言模型一样, 一次只输出一个单词token, 每次产生新单词后,该单词会被添加在">
+    <meta name="description" content="最大似然估计和CE的关系为了理解CE和最大似然法之间的关系, 首先理解基本概念. 信息量和熵信息量信息量衡量了时间的不确定性, 一个时间发生的概率越大, 不确定性就越小, 信息量就越少. 公式:   L(x_0) &#x3D; - \log p(x_0)事件$x_0$, 事件发生的概率是$p(x_0)$, 若事件必然发生, $p(x_0)&#x3D;1$, 信息量为0. 熵熵衡量了系统的混乱程度和不确定性. 熵越大,">
 <meta property="og:type" content="article">
-<meta property="og:title" content="GPT2模型原理的通俗理解">
-<meta property="og:url" content="https://kangkang37.github.io/2024/07/10/gpt01/index.html">
+<meta property="og:title" content="最大似然估计和CE的关系">
+<meta property="og:url" content="https://kangkang37.github.io/2024/07/19/likelihood/index.html">
 <meta property="og:site_name" content="康康博客">
-<meta property="og:description" content="GPT2模型原理的通俗理解GPT2和只带有解码器decoder的transformer模型很像. 它有超大规模,是一个在海量数据集上基于transformer解码器训练的模型.  BERT模型则是通过transformer编码器模块构建的.   通俗而言,gpt2就是根据现有句子,预测下一个单词会是什么. 它像传统的语言模型一样, 一次只输出一个单词token, 每次产生新单词后,该单词会被添加在">
+<meta property="og:description" content="最大似然估计和CE的关系为了理解CE和最大似然法之间的关系, 首先理解基本概念. 信息量和熵信息量信息量衡量了时间的不确定性, 一个时间发生的概率越大, 不确定性就越小, 信息量就越少. 公式:   L(x_0) &#x3D; - \log p(x_0)事件$x_0$, 事件发生的概率是$p(x_0)$, 若事件必然发生, $p(x_0)&#x3D;1$, 信息量为0. 熵熵衡量了系统的混乱程度和不确定性. 熵越大,">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://kangkang37.github.io/2024/07/10/gpt01/gpt0101.png">
-<meta property="og:image" content="https://kangkang37.github.io/2024/07/10/gpt01/gpt0102.png">
-<meta property="og:image" content="https://kangkang37.github.io/2024/07/10/gpt01/gpt0103.png">
-<meta property="og:image" content="https://kangkang37.github.io/2024/07/10/gpt01/gpt0104.png">
-<meta property="og:image" content="https://kangkang37.github.io/2024/07/10/gpt01/gpt0105.png">
-<meta property="og:image" content="https://kangkang37.github.io/2024/07/10/gpt01/gpt0106.png">
-<meta property="og:image" content="https://kangkang37.github.io/2024/07/10/gpt01/gpt0107.png">
-<meta property="article:published_time" content="2024-07-10T20:53:26.000Z">
-<meta property="article:modified_time" content="2024-07-10T22:08:04.930Z">
+<meta property="article:published_time" content="2024-07-20T02:35:32.000Z">
+<meta property="article:modified_time" content="2024-07-20T15:38:41.948Z">
 <meta property="article:author" content="kangkang">
-<meta property="article:tag" content="GPT">
+<meta property="article:tag" content="损失函数">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://kangkang37.github.io/2024/07/10/gpt01/gpt0101.png">
   
   
   
-  <title>GPT2模型原理的通俗理解 - 康康博客</title>
+  <title>最大似然估计和CE的关系 - 康康博客</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -237,7 +229,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="GPT2模型原理的通俗理解"></span>
+            <span id="subtitle" data-typed-text="最大似然估计和CE的关系"></span>
           
         </div>
 
@@ -253,8 +245,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2024-07-10 16:53" pubdate>
-          2024年7月10日 下午
+        <time datetime="2024-07-19 22:35" pubdate>
+          2024年7月19日 晚上
         </time>
       </span>
     
@@ -265,7 +257,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          1.5k 字
+          1.7k 字
         
       </span>
     
@@ -276,7 +268,7 @@
         
         
         
-          13 分钟
+          15 分钟
         
       </span>
     
@@ -321,12 +313,12 @@
       <div class="container nopadding-x-md" id="board-ctn">
         <div id="board">
           <article class="post-content mx-auto">
-            <h1 id="seo-header">GPT2模型原理的通俗理解</h1>
+            <h1 id="seo-header">最大似然估计和CE的关系</h1>
             
               <p id="updated-time" class="note note-info" style="">
                 
                   
-                    本文最后更新于 2024年7月10日晚上6点08分
+                    本文最后更新于 2024年7月20日中午11点38分
                   
                 
               </p>
@@ -334,26 +326,76 @@
             
               <div class="markdown-body">
                 
-                <h1 id="GPT2模型原理的通俗理解"><a href="#GPT2模型原理的通俗理解" class="headerlink" title="GPT2模型原理的通俗理解"></a>GPT2模型原理的通俗理解</h1><p>GPT2和只带有解码器decoder的transformer模型很像. 它有超大规模,是一个在海量数据集上基于transformer解码器训练的模型.  BERT模型则是通过transformer编码器模块构建的.  </p>
-<p>通俗而言,gpt2就是根据现有句子,预测下一个单词会是什么. 它像传统的语言模型一样, 一次只输出一个单词token, 每次产生新单词后,该单词会被添加在之前生成的单词序列之后, 这个序列会成为模型下一步的新输入. 这种机制叫做<u>自回归(auto-regression)</u>, 也是令RNN效果超群的重要思想.  BERT没有使用自回归机制, BERT获得了结合单词前后的上下文信息的能力, 也能取得很好的效果.  </p>
-<h2 id="浅析内部结构"><a href="#浅析内部结构" class="headerlink" title="浅析内部结构"></a>浅析内部结构</h2><p>下面看GPT2的内部结构, 它是如何工作的:<br>GPT-2最长可以处理1024个token的序列,每个token都会和它的前续路径一起‘流过’所有的decoder模块.<br>假设现在gpt2已经训练好了, 只需要提供一个预先定义好的起始单词(训练好的模型会使用endoftext作为起始单词,不妨称其为s), 然后让它自己生成文字.<br><img src="/2024/07/10/gpt01/gpt0101.png" srcset="/img/loading.gif" lazyload alt="输入一个起始单词s让其自己生成下一个单词"><br>此时, 模型的输入只有一个单词, 经过层层处理, 最终得到一个输出向量. 向量对词汇表中每个单词计算一个概率, 选择概率最高的单词作为输出单词, 假设‘The’作为输出.<br>但这样有一个问题: 它可能会陷入推荐同一个单词的循环中, 比如一直重复输出概率最高的单词‘The’, 只有选择概率第2或者第3的单词才能跳出这个循环.  所以, gpt2会有一个叫做‘top-k’的参数, 模型从概率前k的单词中随机抽取下一个单词.<br><img src="/2024/07/10/gpt01/gpt0102.png" srcset="/img/loading.gif" lazyload alt="生成单词The, 继续输入The预测下一个单词"></p>
-<h2 id="深入理解内部原理"><a href="#深入理解内部原理" class="headerlink" title="深入理解内部原理"></a>深入理解内部原理</h2><h3 id="嵌入矩阵和位置编码"><a href="#嵌入矩阵和位置编码" class="headerlink" title="嵌入矩阵和位置编码"></a>嵌入矩阵和位置编码</h3><p>模型首先输入一个句子, 句子先tokenizer分词(以subword为基本离散单位)为一个个子词subword, 每个子词用词表中的index表示, 词表大小为50257.<br>然后通过嵌入矩阵, 找到每个子词对应的词向量. 嵌入矩阵的行数=词表长度50257, 嵌入矩阵的列数=embedding size, 即每个子词对应的词向量的长度. 最小的gpt-small模型会有1*768的长度表示一个子词.<br><img src="/2024/07/10/gpt01/gpt0103.png" srcset="/img/loading.gif" lazyload alt="嵌入矩阵的结构, 各版本gpt对应的词向量长度"><br>嵌入矩阵的每一行都是一个词嵌入向量. 最开始, 需要从嵌入矩阵中找到起始单词s对应的词向量. 然后引入位置编码, 位置编码矩阵如下, 行数表示输入的context的长度(即一个句子分解为子词的个数), 列数同样为embedding size:<br><img src="/2024/07/10/gpt01/gpt0104.png" srcset="/img/loading.gif" lazyload alt="位置编码矩阵的结构"></p>
-<p>输入的单词经过嵌入矩阵和位置编码后, 进入transformer之前的步骤就完成了. 然后经过第一个transformer-decoder模块:<br>首先是自注意力层 masked self-attention, 然后传输给feed forward neural network.  第一个decoder模块完成后, 会把结果向量传给第二个decoder模块, 每个decoder模块的处理方式都是一样的, 但每个模块会维护自己的自注意力层和feed forward层的权重.  </p>
-<h3 id="自注意力机制"><a href="#自注意力机制" class="headerlink" title="自注意力机制"></a>自注意力机制</h3><p>从之前的attention帖子<a href="/2024/07/05/attention/" title="详细理解attention的原理">详细理解attention的原理</a>, 我们了解到自注意力机制的公式: </p>
+                <h1 id="最大似然估计和CE的关系"><a href="#最大似然估计和CE的关系" class="headerlink" title="最大似然估计和CE的关系"></a>最大似然估计和CE的关系</h1><p>为了理解CE和最大似然法之间的关系, 首先理解基本概念.</p>
+<h2 id="信息量和熵"><a href="#信息量和熵" class="headerlink" title="信息量和熵"></a>信息量和熵</h2><p><strong>信息量</strong><br>信息量衡量了时间的不确定性, 一个时间发生的概率越大, 不确定性就越小, 信息量就越少. 公式: </p>
 <script type="math/tex; mode=display">
-attention(Q,K,V)=softmax(\frac{QK^T}{\sqrt{d_k}})V</script><p>自注意力机制就是: 对序列中每个单词, 都赋予一个相关度得分$softmax(\frac{QK^T}{\sqrt{d_k}})$, 然后对他们的向量表征$V$乘以这个相关度得分, 即对向量表征加权求和, 所加的这个权重是相关度得分.  </p>
-<p>自注意力机制中的Query, Key和Value的含义: </p>
-<ul>
-<li>Query查询向量: 当前单词的查询向量被用来和其它单词的键向量相乘，从而得到其它词相对于当前词的注意力得分。只关心目前正在处理的单词的查询向量。</li>
-<li>Key键向量: 键向量就像是序列中每个单词的标签，它使搜索相关单词时用来匹配的对象。</li>
-<li>Value值向量: 值向量是单词真正的表征，当算出注意力得分后，使用值向量进行加权求和得到能代表当前位置上下文的向量。</li>
-</ul>
-<p><img src="/2024/07/10/gpt01/gpt0105.png" srcset="/img/loading.gif" lazyload alt="自注意力机制比喻: 在档案柜中找文件"><br>一个简单粗暴的比喻是在档案柜中找文件。查询向量就像一张便利贴，上面写着你正在研究的课题。键向量像是档案柜中文件夹上贴的标签。当你找到和便利贴上所写相匹配的文件夹时，拿出它，文件夹里的东西便是值向量。</p>
-<p>将单词的查询向量分别乘以每个文件夹的键向量，得到各个文件夹对应的注意力得分（这里的乘指的是向量点乘，乘积会通过 softmax 函数处理）。</p>
-<p>将每个文件夹的值向量乘以其对应的注意力得分，然后求和，得到最终自注意力层的输出。<br><img src="/2024/07/10/gpt01/gpt0106.png" srcset="/img/loading.gif" lazyload alt="值向量的加权求和, 权重是注意力得分"></p>
-<h3 id="模型输出"><a href="#模型输出" class="headerlink" title="模型输出"></a>模型输出</h3><p>向量经过自注意力机制和feed forward层后,得到输出向量, 这个向量和嵌入矩阵相乘, 得到词汇表中每个单词的注意力得分. 因为嵌入矩阵$M$大小为$50257 \times 768$, 输出向量$X$的大小: $1\times 768$, $size (M \times X^T) = 50257 \times 1$.<br>选取得分最高的单词为输出结果(top-k=1时). 但更好的策略是选择得分较高的一部分单词,将他们的得分作为概率从整个单词表中抽样(得分高的单词更容易选中). 一般的, top-k=40.<br><img src="/2024/07/10/gpt01/gpt0107.png" srcset="/img/loading.gif" lazyload alt="输出向量和嵌入矩阵相乘得到每个单词概率"><br>以上, 模型完成了一次迭代. 模型不断迭代直到生成一个完成序列, 序列得到1024或者生成终止符. </p>
-<h2 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h2><p>BERT模型的原理结构<br>代码中的gpt2</p>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p>中文博客园: <a target="_blank" rel="noopener" href="https://www.cnblogs.com/zhongzhaoxie/p/13064404.html">GPT-2通俗理解</a><br>Jay Alammar博客: <a target="_blank" rel="noopener" href="https://jalammar.github.io/illustrated-transformer/">The Illustrated Transformer</a></p>
+L(x_0) = - \log p(x_0)</script><p>事件$x_0$, 事件发生的概率是$p(x_0)$, 若事件必然发生, $p(x_0)=1$, 信息量为0.</p>
+<p><strong>熵</strong><br>熵衡量了系统的混乱程度和不确定性. 熵越大,不确定性越大, 信息量越大. 熵的计算公式: </p>
+<script type="math/tex; mode=display">
+H(p) = -\sum_{i=1}^n p(x_i) \log p(x_i) \tag{1}</script><p>其中事件变量X, $p(x_i)$表示事件$X=x_i$的概率, $- \log p(x_i)$就是事件$X=x_i$的信息量.</p>
+<p>可以发现, 熵是信息量的期望, 各个事件发生概率乘以其信息量. 熵越大, X取值越难确定, 系统越不稳定. </p>
+<h2 id="相对熵-relative-entropy"><a href="#相对熵-relative-entropy" class="headerlink" title="相对熵 relative entropy"></a>相对熵 relative entropy</h2><p>相对熵也称为KL散度(Kullback-Lerbler divergence), 表示一个随机变量的两个不同分布的距离.  假设$p(x)$和$q(x)$分别是离散随机变量X的两个分布概率, 则p相对于q的相对熵是: </p>
+<script type="math/tex; mode=display">
+D_{KL}(p||q) = \sum_i p(x_i) \log \frac{p(x_i)}{q(x_i)} \tag{2}</script><p>相对熵的性质: </p>
+<ol>
+<li>如果$p(x)$和$q(x)$的分布相同, 则其相对熵=0.</li>
+<li>相对熵不具有对称性, $D_{KL}(p||q)!=D_{KL}(q||p)$</li>
+<li>$D_{KL}(p||q)\geq 0$</li>
+</ol>
+<h2 id="交叉熵-cross-entropy"><a href="#交叉熵-cross-entropy" class="headerlink" title="交叉熵 cross entropy"></a>交叉熵 cross entropy</h2><p>假设$p(x)$和$q(x)$分别是离散随机变量X的两个分布概率, 其中$p(x)$是目标分布, $q(x)$是预测分布, p和q的交叉熵可以看做, 使用预测分布表示目标分布的困难程度: </p>
+<script type="math/tex; mode=display">
+H(p,q) = \sum_i p(x_i) \log \frac{1}{\log q(x_i)} = - \sum_i p(x_i) \log q(x_i) \tag{3}</script><p><strong>熵,交叉熵,相对熵的关系: </strong><br>根据上面的三个公式, 下面很容易推导: </p>
+<script type="math/tex; mode=display">
+D_{KL}(p,q) = H(p,q) -H(p)</script><p>在机器学习中, 目标分布$p(x)$即真实分布是固定的, 所以$H(p)$是固定的, 最小化交叉熵等价于最小化相对熵. </p>
+<h2 id="交叉熵损失函数-CE-loss"><a href="#交叉熵损失函数-CE-loss" class="headerlink" title="交叉熵损失函数 CE loss"></a>交叉熵损失函数 CE loss</h2><p>假设batch size=n, 是m分类问题, 交叉熵损失函数的公式: </p>
+<script type="math/tex; mode=display">
+CELoss = -\frac{1}{n} \sum_{i=1}^n p(x_i) \log q(x_i) = -\frac{1}{n} \sum_{i=1}^n \sum_{j=1}^m p(x_i^j) \log q(x_i^j)</script><p>其中$p(x_i)$是真实label, $q(x_i)$是预测label, $x_i$是一个batch中的第i个向量, $x_i^j$是第i个向量的第j个元素.</p>
+<h2 id="最大似然估计"><a href="#最大似然估计" class="headerlink" title="最大似然估计"></a>最大似然估计</h2><p>最大似然估计是一种参数估计. 现在对某个变量X, 我们知道它分布服从某种分布形态（二项分布/正态分布/指数分布等），但是分布的具体参数不知道。<br>此时可以借助从总体抽样的方式，估计未知参数。  </p>
+<p>通过一个简单例子便于理解:<br>假设研究对象X的分布是二项分布，即0-1分布，其中1的概率是p。如果知道p的值，就知道了分布形态的全部。但现在只是到分布形态是二项分布, 不知道具体p值是什么. 就可以通过最大似然估计求p值.</p>
+<p>具体方法是这样: 首先抽样, 得到样本集$X=[x_1, x_2, .., x_n]$, 包含n个样本, 独立同分布. 任何一个参数$x_i$的取值概率是$p(x_i|\theta)$, 其中$\theta$是这个分布函数的未知参数. (上例中x_i为0或者1, 未知参数是p)</p>
+<p>则得到当前样本集的概率是: </p>
+<script type="math/tex; mode=display">
+P(X)=P(x_1|\theta) P(x_2 | \theta) P(x_3| \theta) ... P(x_n | \theta)</script><p>这个$P(X)$是关于未知参数$\theta$的函数. 函数$P(X)$是参数$\theta$相对于样本集X的似然函数 likelihood, 可以写作: </p>
+<script type="math/tex; mode=display">
+L(\theta) = L(x_1, x_2..x_n | \theta) = P(x_1|\theta) P(x_2 | \theta) ... P(x_n | \theta)</script><p>因为现在抽取到样本集X已成为既定事实, 这个事件发生了, 我们可以假设这个事件发生的概率尽可能大, 即我们要求未知参数$\theta$的值, 让这个似然函数$L(\theta)$的取值尽可能大, 这就是最大似然估计.</p>
+<p>最大似然估计: 找到让似然函数$L(\theta)$的取值尽可能大的$\theta$值, $argmax L(\theta)$.</p>
+<p>在求极值之前, 先取似然函数的对数, 得到对数似然函数. 因为似然函数是多个项的乘积, 可能会是多个小数相乘得到一个非常小的值, 造成下溢underflow. </p>
+<p>对数似然函数: </p>
+<script type="math/tex; mode=display">
+l(\theta) = \log L(\theta) = \log (P(x_1|\theta) P(x_2 | \theta) ... P(x_n | \theta)) = \sum_i \log P(x_i | \theta)</script><p>如何求$\theta$的值, 让对数似然函数的取值最大? 先对对数似然函数求关于$\theta$的偏导数, 令偏导=0, 得到似然方程. 然后求似然方程得到$\theta$的取值.</p>
+<p><strong>总结, 最大似然估计的流程: </strong><br>(现在知道某个变量的分布函数, 但不知道具体参数, 通过最大似然估计求未知参数.)</p>
+<ol>
+<li>首先对变量X进行抽样, 得到样本集$X=[x_1, x_2, .., x_n]$.</li>
+<li>得到似然函数 $L(\theta) =  P(x_1|\theta) … P(x_n | \theta)$</li>
+<li>得到对数似然函数 $l(\theta) = \log L(\theta) $.</li>
+<li>进行最大似然估计 $argmax_{\theta} l(\theta)$:<br> a. 把对数似然函数求关于$\theta$的偏导数, 令偏导=0, 得到似然方程.<br> b. 求解似然方程得到$\theta$的取值.</li>
+</ol>
+<h2 id="最大似然估计和交叉熵的关系"><a href="#最大似然估计和交叉熵的关系" class="headerlink" title="最大似然估计和交叉熵的关系"></a>最大似然估计和交叉熵的关系</h2><p>现在知道最大似然估计maximum likelihood estimation是: </p>
+<script type="math/tex; mode=display">
+\theta_{ML} = argmax_{\theta} \sum_{i=1}^n \log p(x_i | \theta)</script><p>进行放缩, 两边除以样本个数n: </p>
+<script type="math/tex; mode=display">
+\theta_{ML} = argmax_{\theta} \frac{1}{n} \sum_{i=1}^n \log p(x_i | \theta) \tag{a}</script><p>上述公式a是对随机变量X的函数$\log p(X | \theta)$求均值, 根据大数定理, 随着样本容量n的增加, 样本的算术平均值等于随机变量X的期望, 即: </p>
+<script type="math/tex; mode=display">
+\frac{1}{n} \sum_{i=1}^n \log p(x_i | \theta) \rightarrow E_X(\log p(X|\theta))</script><p>其中, $E_X$表示变量X的函数$\log p(X | \theta)$的期望.</p>
+<p>这样, 当样本集n很大时, 最大似然估计可以看做: </p>
+<script type="math/tex; mode=display">
+\begin{aligned}
+\theta_{ML} &= argmax_{\theta} E_X(\log p(X|\theta))  \\
+&= argmin_{\theta} E_X(- \log p(X|\theta)) 
+\end{aligned}</script><p>相对熵可以这样变换: </p>
+<script type="math/tex; mode=display">
+\begin{aligned}
+D_{KL}(q||p) &= \sum_i q(x_i) \log \frac{q(x_i)}{p(x_i)} \\
+&=E_x \log(\frac{q(x)}{p(x)}) \\
+&= E_x ( \log q(x) - \log p(x)) \\
+&= E_x (\log q(x)) - E_x(\log p(x))
+\end{aligned}</script><p>其中$q(x)$是目标分布, 是固定的, 所以$E_x (\log q(x))$是固定的; $p(x)$是预测分布.</p>
+<p>最小化$D_{KL}(q||p)$ $\Longleftrightarrow$ 最小化$(- E_x(\log p(x)))$ $\Longleftrightarrow$ 最大化似然估计. ($\Longleftrightarrow$表示‘等价于’)</p>
+<p>因为</p>
+<script type="math/tex; mode=display">
+D_{KL}(q||p) = H(q,p) -H(q)</script><p>最小化$D_{KL}(q||p)$等价于最小化$H(q,p)$.</p>
+<p>所以: 最小化交叉熵$H(q,p)$ $\Longleftrightarrow$ 最大似然估计$argmax_{\theta}   l(x|\theta)$.<br>其中q是变量x的真实分布, p是x的预测分布, $\theta$是$p(x)$的未知参数. </p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考:"></a>参考:</h2><p>基础篇：<br><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/191c029ad369">https://www.jianshu.com/p/191c029ad369</a><br>进阶篇：<br><a target="_blank" rel="noopener" href="https://www.cnblogs.com/wangguchangqing/p/12068084.html">https://www.cnblogs.com/wangguchangqing/p/12068084.html</a></p>
 
                 
               </div>
@@ -372,12 +414,12 @@ attention(Q,K,V)=softmax(\frac{QK^T}{\sqrt{d_k}})V</script><p>自注意力机制
     
       <span class="category-chain">
         
-  <a href="/categories/ML%E5%B8%B8%E8%A7%81%E6%A8%A1%E5%9E%8B/" class="category-chain-item">ML常见模型</a>
+  <a href="/categories/ML%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" class="category-chain-item">ML基础知识</a>
   
   
     <span>></span>
     
-  <a href="/categories/ML%E5%B8%B8%E8%A7%81%E6%A8%A1%E5%9E%8B/GPT/" class="category-chain-item">GPT</a>
+  <a href="/categories/ML%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/%E6%8D%9F%E5%A4%B1%E5%87%BD%E6%95%B0/" class="category-chain-item">损失函数</a>
   
   
 
@@ -394,7 +436,7 @@ attention(Q,K,V)=softmax(\frac{QK^T}{\sqrt{d_k}})V</script><p>自注意力机制
     <div class="post-meta">
       <i class="iconfont icon-tags"></i>
       
-        <a href="/tags/GPT/" class="print-no-link">#GPT</a>
+        <a href="/tags/%E6%8D%9F%E5%A4%B1%E5%87%BD%E6%95%B0/" class="print-no-link">#损失函数</a>
       
     </div>
   
@@ -406,8 +448,8 @@ attention(Q,K,V)=softmax(\frac{QK^T}{\sqrt{d_k}})V</script><p>自注意力机制
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>GPT2模型原理的通俗理解</div>
-      <div>https://kangkang37.github.io/2024/07/10/gpt01/</div>
+      <div>最大似然估计和CE的关系</div>
+      <div>https://kangkang37.github.io/2024/07/19/likelihood/</div>
     </div>
     <div class="license-meta">
       
@@ -419,7 +461,7 @@ attention(Q,K,V)=softmax(\frac{QK^T}{\sqrt{d_k}})V</script><p>自注意力机制
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2024年7月10日</div>
+          <div>2024年7月19日</div>
         </div>
       
       
@@ -451,9 +493,9 @@ attention(Q,K,V)=softmax(\frac{QK^T}{\sqrt{d_k}})V</script><p>自注意力机制
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2024/07/19/loss-func/" title="常见损失函数介绍">
+                      <a href="/2024/07/20/llama3/" title="通俗理解llama3的性能和创新">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">常见损失函数介绍</span>
+                        <span class="hidden-mobile">通俗理解llama3的性能和创新</span>
                         <span class="visible-mobile">上一篇</span>
                       </a>
                     
@@ -461,8 +503,8 @@ attention(Q,K,V)=softmax(\frac{QK^T}{\sqrt{d_k}})V</script><p>自注意力机制
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2024/07/10/papers-paper-pim/" title="HMA论文-存内计算方向">
-                        <span class="hidden-mobile">HMA论文-存内计算方向</span>
+                      <a href="/2024/07/19/loss-func/" title="常见损失函数介绍">
+                        <span class="hidden-mobile">常见损失函数介绍</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>

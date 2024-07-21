@@ -4,6 +4,141 @@
   
   
   <entry>
+    <title>llama3模型的评估指标</title>
+    <link href="/2024/07/21/llama3-eval/"/>
+    <url>/2024/07/21/llama3-eval/</url>
+    
+    <content type="html"><![CDATA[<h1 id="llama3模型的评估指标"><a href="#llama3模型的评估指标" class="headerlink" title="llama3模型的评估指标"></a>llama3模型的评估指标</h1><p>上一个博客概述了llama3模型的性能和创新点, <a href="/2024/07/20/llama3/" title="通俗理解llama3的性能和创新">通俗理解llama3的性能和创新</a>, 这里详细介绍llama3中的评估指标是什么, 如何实现的.</p><p>llama3的evaluation的细节看这里: <a href="https://github.com/meta-llama/llama3/blob/main/eval_details.md">llama3_eval_details</a>, </p><p>llama3的pre-trained和instruct-aligned模型的评估结果如下图:<br><img src="llama3/llama3-01.png" alt="图1: llama3的pre-trained模型的评估结果"><br><img src="llama3/llama3-03.png" alt="图2: llama3的instruct模型的评估结果"></p><p>为了能看懂图中的几个评测指标, 首先理解这几个概念:</p><h2 id="zero-shot和few-shot"><a href="#zero-shot和few-shot" class="headerlink" title="zero-shot和few-shot"></a>zero-shot和few-shot</h2><h3 id="zero-shot-learning零样本学习"><a href="#zero-shot-learning零样本学习" class="headerlink" title="zero-shot learning零样本学习"></a>zero-shot learning零样本学习</h3><p>论文: <a href="https://arxiv.org/pdf/1707.00600v4">Zero-Shot Learning - A Comprehensive Evaluation of the Good, the Bad and the Ugly</a></p><p>零样本学习, 让模型能对从未见过的对象进行分类, 让机器具有推理能力. 具体地, 训练集数据和测试集数据没有交集, 利用训练集训练模型后, 让模型对测试集的从未见过的对象能进行分类. zero-shot是指要分类的对象是一次也不学习的. </p><p>例子: 训练集包含马/老虎/熊猫的样本和对应标签, 以及马/老虎/熊猫的描述, 让模型能学会识别马/老虎/熊猫; 训练集还有斑马的描述, 但是没有斑马样本. 然后测试集中的给出一个斑马样本, 模型尽管没见过斑马, 也能识别这个图片是斑马. </p><p>这就是让模型具有了推理能力. 利用过去的知识, 推理出新对象的具体形态, 从而对从未见过的类别进行辨认. zero-shot learning让模型具有辨认新事物的能力.</p><h3 id="one-shot-learning-单样本学习"><a href="#one-shot-learning-单样本学习" class="headerlink" title="one-shot learning 单样本学习"></a>one-shot learning 单样本学习</h3><p>one-shot learning是指这个类别的训练样本只有一个, 依然能对这个类别做到预测. </p><p>因为在大数据集上学到了general knowledge, 即一个映射$X-&gt;Y$, 其中类别X有很多训练数据, 类别Y只有一个训练样本. 尽管Y很少, 但是因为学习到了映射$X-&gt;Y$, 也就能实现对小数据Y的预测.</p><p>one-shot learning的意义:</p><ul><li>减少训练数据. 深度学习通常需要很多数据, 但是one-shot能让某个类别的训练数据减少到一个.</li><li>新类别数据出现时, 无需重新训练. 传统的NN网络, 在新类别出现后需要重新对所有类别训练, 但是one-shot learning只需要对新增类别训练即可.</li></ul><p>one-shot learning是few-shot learning的一种特殊情况.</p><h3 id="few-shot-learning-小样本学习"><a href="#few-shot-learning-小样本学习" class="headerlink" title="few-shot learning 小样本学习"></a>few-shot learning 小样本学习</h3><p>训练集中某些类别的样本只有少量, 就是few-shot learning. </p><h3 id="zero-shot和few-shot的区别"><a href="#zero-shot和few-shot的区别" class="headerlink" title="zero-shot和few-shot的区别"></a>zero-shot和few-shot的区别</h3><p>小样本学习是使用少量训练数据来获得准确分类预测效果. 零样本学习是让模型预测从未出现的类别. </p><h2 id="MMLU评测指标"><a href="#MMLU评测指标" class="headerlink" title="MMLU评测指标"></a>MMLU评测指标</h2><p>MMLU(Mean Multi-Language Understanding)多语言理解均值, 是衡量大语言模型在多语言方面的能力的基准测试. 避免仅关注主流语言而对其他语言置之不理, 对构建普适性的多语言模型至关重要. 它通常包含多种不同的语言任务, 如文本分类/问答/摘要生成等, 对多种语言进行测试.</p><p>为了计算MMLU, 首先分别计算各种语言在该任务上的性能, 获得准确率/召回率/F1分数等指标, 针对每种语言计算在该任务的性能均值. 然后对所有语言的均值进行加权平均, 得到全局MMLU.</p><p>举例来说，假设有一个大型语言模型在英语、中文和德语上进行了文本分类任务的评估。模型在英语上的准确率为0.7，中文为0.6，德语为0.5。那么，MMLU就是这三个语言准确率的加权平均值。如果英语、中文和德语的权重分别为0.4、0.3和0.3，那么 MMLU 就是 $0.4\times 0.7 + 0.3 \times 0.6 + 0.3 \times 0.5 = 0.61$。</p><p>实际应用中, MMLU会针对不同任务而设定不同权重, 以适应特定场景需求.</p><h2 id="GPQA评测"><a href="#GPQA评测" class="headerlink" title="GPQA评测"></a>GPQA评测</h2><p>GPQA(Grade School Physics Question Answering), 是一个Google验证问答的基准测试, 评估模型在生物/物理/化学等学科领域的深入程度. 该数据集包含448个多项选择题, 这些问题难度很高, 即使是相关学科博士专家回答, 也只有65%正确率, 非专家的正确率低至34%.</p><h2 id="HumanEval评估"><a href="#HumanEval评估" class="headerlink" title="HumanEval评估"></a>HumanEval评估</h2><p>HumanEval是一个评估工具, 评估模型在代码任务上的性能. HuamnEval会模拟人类, 对模型生成的代码进行评估.</p><h2 id="GSM基准测试"><a href="#GSM基准测试" class="headerlink" title="GSM基准测试"></a>GSM基准测试</h2><p>GSM(Grade School Math)是小学数学数据的基准测试, 评估模型在处理小学数学上的能力.</p><h2 id="MATH评测"><a href="#MATH评测" class="headerlink" title="MATH评测"></a>MATH评测</h2><p>MATH数据集用于衡量LLM的解决数学问题的能力. 这个数据集包含各种数学问题, 从基础算数到高级概念. 用于测试模型是否可以正确理解数学问题并给出准确解答.</p><h2 id="参考"><a href="#参考" class="headerlink" title="参考:"></a>参考:</h2><p><a href="https://blog.csdn.net/zcyzcyjava/article/details/127006287">CSDN: 什么是zero-shot, one-shot和few-shot Learning</a></p><p><a href="https://www.ctyun.cn/developer/article/503404435451973">什么是衡量大语言模型能力的MMLU参数指标</a></p>]]></content>
+    
+    
+    <categories>
+      
+      <category>ML常见模型</category>
+      
+      <category>llama</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>llama</tag>
+      
+      <tag>待完成</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>ML专业术语I——instruct学习, prompt学习和MLLM优化</title>
+    <link href="/2024/07/20/terms01/"/>
+    <url>/2024/07/20/terms01/</url>
+    
+    <content type="html"><![CDATA[<h1 id="ML专业术语I——instruct学习和prompt学习"><a href="#ML专业术语I——instruct学习和prompt学习" class="headerlink" title="ML专业术语I——instruct学习和prompt学习"></a>ML专业术语I——instruct学习和prompt学习</h1><p>在大语言模型中, instruct学习, prompt学习, fine-tuning, warmup, profile是很常见的专业术语, 不理解它们会造成后续学习的障碍. 下面会理解和区分这几个概念. </p><h2 id="fine-tuning微调"><a href="#fine-tuning微调" class="headerlink" title="fine-tuning微调"></a>fine-tuning微调</h2><p>模型微调, 是指在预训练的基础上, 针对特定的任务, 对部分或者全部参数进行进一步的训练和调整. </p><p>预训练模型是在大量数据集上训练得到的, 具有通用性和泛化性. 而微调的目的, 是通过较小的目标数据集对模型进一步训练, 提高模型在特定任务上的性能.</p><h2 id="instruct学习"><a href="#instruct学习" class="headerlink" title="instruct学习"></a>instruct学习</h2><p>指示学习是Google团队在2021年提出的思想, 论文: <a href="https://arxiv.org/pdf/2109.01652">Finetuned Language Models Are Zero-Shot Learners</a>.<br>instruct学习和prompt学习都是为了挖掘语言模型本身具备的知识, 不同的是, prompt是激发模型的补全能力, 如根据上半句生成下半句, 或者完形填空. instruct是激发模型的理解能力, 它通过更明显的指令, 让模型做出正确的行动.</p><p>下面有个例子: </p><ol><li>prompt学习: 我很喜欢这幅画, 这幅画太____了.</li><li>instruct学习: 判断这句话的情感: 太糟了, 今天下雨导致我后面的行程都被打乱了. 选项: A=好, B=一般, C=差.</li></ol><p><strong>指令微调: </strong><br>指令微调和指令学习是一个意思. 就是让预训练的大模型被进一步训练, 能更好的理解和遵循人类指令. 这种方法可以提高模型在特定任务上的性能. </p><h3 id="具体步骤"><a href="#具体步骤" class="headerlink" title="具体步骤:"></a>具体步骤:</h3><ol><li>准备预训练模型: 例如选择gpt-3的大模型, 这个模型已经在大量开源数据集上预训练好.</li><li>准备微调数据集:<br>这个数据集包含‘指令’+‘期望输出’, 数据集是用于特定任务的.<br>比如用于情感分析这个特定任务, 数据集的格式: <figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs makefile"><span class="hljs-section">指令: 对以下句子进行情感倾向的分析.</span><br><span class="hljs-section">句子: 我今天感觉很开心!</span><br><span class="hljs-section">期望输出: 正面</span><br></code></pre></td></tr></table></figure></li><li>设计输入和输出格式: 通常, 输入包含指令和上下文信息, 输出是模型需要根据指令生成的文本. <figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs makefile"><span class="hljs-section">在情感分析的任务中: </span><br><span class="hljs-section">输入: 指令+句子, </span><br><span class="hljs-section">输出: ‘正面‘或者’负面’.</span><br></code></pre></td></tr></table></figure></li><li>微调模型: 使用训练集对模型微调, 监控模型在验证集的性能, 调整学习率和batch size大小等参数以优化结果.</li><li>评估和测试: 在测试集上评估微调后的模型性能, 使用适合于这个特定任务的评测指标, 比如准确率, F1分数, BLEU分数等.</li><li>应用和部署: 微调完成后, 就可以把模型部署到实际应用中, 根据新的输入指令生成输出. </li></ol><h2 id="prompt学习"><a href="#prompt学习" class="headerlink" title="prompt学习"></a>prompt学习</h2><p>看这篇论文: (Pre-train, Prompt, and Predict: A Systematic Survey of Prompting Methods in Natural Language Processing)[<a href="https://arxiv.org/pdf/2107.13586">https://arxiv.org/pdf/2107.13586</a>]<br>(下面的解释不一定准确, 先看上面这个论文..待办)</p><h3 id="prompt是什么"><a href="#prompt是什么" class="headerlink" title="prompt是什么:"></a>prompt是什么:</h3><p>prompt提示词, 是输入给大模型的一个指令, 比如一个问题, 一句话, 一个指令, 用于引导或者指示模型生成特定的内容. prompt是用户和墨西哥交互的起点, 告诉模型用户的意图, 希望模型能回应相关内容. </p><p>例如, 我想让模型解释什么是‘机器学习’, 我会给模型输入的prompt是:<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">请解释什么是机器学习.<br></code></pre></td></tr></table></figure></p><p>比如最常见chatgpt模型, 我们在对话框中输入给机器的内容就是prompt. </p><h3 id="什么是prompt学习"><a href="#什么是prompt学习" class="headerlink" title="什么是prompt学习:"></a>什么是prompt学习:</h3><p>prompt不仅可以用于启动大模型, 得到指定回答. 还可以用于训练模型. 因为常见的大模型有很多参数, 体量庞大, 官方在训练模型时会使用大量的开源数据, 导致模型在通用性强. 通俗而言, 模型的能力很强大, 但是需要好好引导才能更好地得到我们想要的回答.  </p><p>比如我想问和chatgpt模拟关于软件工程师方面的面试. 我会先给模型输入prompt:<br><figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs markdown">我想模拟软件工程师的面试, 下面你来扮演面试官, 我是面试者, 你来提出3个关于java的基础知识, 并给出一道编程题, 由我来回答, 好吗?<br></code></pre></td></tr></table></figure><br>这样的prompt让模型能理解你想要干什么, 并更好的给出你需要的回答. 上面这个只是简单的例子. </p><p><strong>prompt的优缺点: </strong><br>优点: </p><ol><li>减少数据标注工作量</li><li>控制输出结果的质量和多样性和格式.</li><li>提高模型效率</li></ol><p>缺点:</p><ol><li>需要设计合适的prompt.</li><li>依赖于先验知识, prompt需要一定的先验知识, 如果没有这个领域的专业知识, 无法设计出好的prompt, 会影响模型输出质量.</li><li>受限于数据集和模型结构, 如果数据集不够丰富或者模型结构不合理, 可能导致输出质量不高.</li></ol><p>随着大模型的广泛应用, 由此产生了prompt engineer的岗位, 可见prompt对于大模型的重要性, 好的prompt能很好的挖掘出模型能力, 得到高质量回答. </p><h2 id="warmup是什么"><a href="#warmup是什么" class="headerlink" title="warmup是什么"></a>warmup是什么</h2><p>warmup中文意思就是热身. warmup是<a href="https://arxiv.org/pdf/1512.03385">ResNet论文</a>中提出的一种预热学习率的方法. 在训练开始时选择一个较小的学习率, 使得网络熟悉数据，随着训练的进行学习率慢慢变大，到了一定程度，以设置的初始学习率进行训练，接着过了一些epochs后，学习率再慢慢变小；学习率变化：上升——平稳——下降. </p><h2 id="profile是什么"><a href="#profile是什么" class="headerlink" title="profile是什么"></a>profile是什么</h2><p>profile v. 概述, 扼要介绍; profiling n. 资料收集, 剖析研究.<br>代码profiling就是对这个代码剖析研究, 性能分析等; 对大模型profiling, 比如导师让你profile GPT3, 就是对GPT3大模型进行剖析分析.</p><h2 id="MLLM优化方式"><a href="#MLLM优化方式" class="headerlink" title="MLLM优化方式"></a>MLLM优化方式</h2><p>多模态大语言模型(MLLM, multimodal large language model)动辄上亿个参数, 官方通过大量开源数据对大模型预训练后, 个人如何对模型进一步训练, 提高特定领域的性能? 如果直接对大模型的全部参数微调, 需要很大资源, 个体几乎无法实现. </p><p><strong>提升预训练大模型性能的方法: </strong></p><ol><li>prompt learning. 如何写出更好的prompt, 引导模型输出高质量回答. (prompt实现容易, 但作用有限).</li><li>RAG(retrieval augmented generation)检索增强生成.</li><li>fine-tuning微调. 因为LLM很大, 直接fine-tuning整个模型, 不仅容易让模型忘记之前的知识, bias到当前downstream task上, 也需要很大的cost开销来训练. 所以提出了parameter efficient fine-tuning(PEFT)方法. 典型的有LoRA, 和Adaptor.</li><li>添加adaptor. 当前模型的结构不变, 添加额外的layer, 只训练这个新插入的层. </li><li>添加Lora模块.</li></ol><h2 id="待办"><a href="#待办" class="headerlink" title="待办"></a>待办</h2><p>prompt学习和instruct学习的理解不是很好, 先看参考的两个论文, 再更新这个博客.</p><p>模型优化方式详解.</p><p>warmup pytroch 代码实现.</p><h2 id="参考"><a href="#参考" class="headerlink" title="参考:"></a>参考:</h2><p>instruct学习的论文: <a href="https://arxiv.org/pdf/2109.01652">Finetuned Language Models Are Zero-Shot Learners</a>.  </p><p>prompt论文: <a href="https://arxiv.org/pdf/2107.13586">Pre-train, Prompt, and Predict: A Systematic Survey of Prompting Methods in Natural Language Processing</a></p><p>什么是指令微调: <a href="https://blog.csdn.net/qq_36485259/article/details/136643018">CSDN 指令微调</a></p><p>什么是prompt: <a href="https://www.quanzhan.co/archives/541">luch博客—什么是prompt</a></p><p>ResNet论文: <a href="https://arxiv.org/pdf/1512.03385">https://arxiv.org/pdf/1512.03385</a></p>]]></content>
+    
+    
+    <categories>
+      
+      <category>ML基础知识</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>待完成</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>通俗理解llama3的性能和创新</title>
+    <link href="/2024/07/20/llama3/"/>
+    <url>/2024/07/20/llama3/</url>
+    
+    <content type="html"><![CDATA[<h1 id="通俗理解llama3模型的性能和创新"><a href="#通俗理解llama3模型的性能和创新" class="headerlink" title="通俗理解llama3模型的性能和创新"></a>通俗理解llama3模型的性能和创新</h1><p>2024年4月18日, Meta官方发布了text-based llama3大模型, 这是最新一代的large language model (LLM). </p><p>这个text-based model是llama3系列模型中的第一个, 之后会让llama3实现多语言(multilingual)和多模态(multimodal), 实现更长context上下文, 并提高推理和编码(reasoning and coding)的整体性能.</p><h2 id="模型性能-state-of-the-art-performance"><a href="#模型性能-state-of-the-art-performance" class="headerlink" title="模型性能 state-of-the-art performance"></a>模型性能 state-of-the-art performance</h2><p>目前, llama3模型有8B参数和70B参数两个预训练版本, 在很多基准(benchmarks)上有最好(state-of-the-art)的表现. 是目前最好的开源模型之一. </p><p>新的8B和70B参数的llama3模型相比llama2有重大飞跃. 得益于预训练(pretraining)和后训练(post-training)的改进, 这个预训练和指令微调模型(instruction-fine-tuned)是目前在8B和70B参数规模上最好的模型. 在后训练程序上的改进大大降低了错误拒接率(false refusal rates), 提高了对齐率(alignment), 增强了模型响应多样性. 在推理(reasoning), 代码生成(code generation)和指令跟踪(instruction following)上有极大改进.</p><p><img src="/2024/07/20/llama3/llama3-01.png" alt="图1: Meta llama3模型的表现"></p><p>具体评估细节看这个: <a href="https://github.com/meta-llama/llama3/blob/main/eval_details.md">https://github.com/meta-llama/llama3/blob/main/eval_details.md</a></p><p>在开发llama3的时候, 除了在标准benchmarks上评估其性能, 为了优化模型在实际场景中的表现, 他们还开发了一个新的高质量人工评估集(high-quality human evaluation set).  这个评估集包含1800个prompts, 其中蕴含12个关键用例: asking for advice征求建议, brainstorming头脑风暴, classification分类, closed question answering封闭式问答, coding编码, creative writing创意写作, extraction提取, inhabiting a character/persona扮演人物角色, open question answering开放式问答, reasoning推理, rewriting重写, summarization总结. 为了防止模型在这个评估集上过度拟合, 甚至他们自己的建模团队也不能访问它. </p><p>下面这个图显示了在这个评估集上的人工评估结果, 对比LLama3 70B和Claude Sonnet/ Mistral Medium/GPT-3.5/Meta Llama2:<br><img src="/2024/07/20/llama3/llama3-02.png" alt="图2: llama3 70B和其他大模型在此评估集上的人工评估结果对比"></p><p>llama3预训练模型还在这些评估维度上刷新了性能, 建立了新的state-of-the-art:<br><img src="/2024/07/20/llama3/llama3-03.png" alt="图3: llama3预训练模型的性能"><br>注意, 这个图3和上面的图1很像, 但是有区别. 其一是评估方法有些不同, 其二: 图3是预训练模型的性能, 图1是instruct模型的性能.</p><h2 id="模型原理详解"><a href="#模型原理详解" class="headerlink" title="模型原理详解"></a>模型原理详解</h2><p>为了开发优秀的LLM, 创新/扩展/优化简化这三个方面很重要. 下面围绕着四个维度较少llama3模型: 模型架构(model architecture(pretraining data), 扩展预训练(scaling up pretraining), 指令微调(instruction fine-tuning).</p><h3 id="模型结构"><a href="#模型结构" class="headerlink" title="模型结构"></a>模型结构</h3><p>llama3使用transformer的decoder结构, 和llama2相比, 有这样几个改进: </p><ol><li>llama3的tokenizer使用含有128K个tokens的词汇表, 能更有效的对语言进行编码.</li><li>为了提高llama3的推理效率(inference efficiency), 采用<strong>分组查询注意(grouped query attention GQA)</strong>.</li><li>使用含有8192个tokens的序列(sequences)对模型训练, 使用mask(掩码)来保证self-attention不会cross document boundaries(跨越文本边界)</li></ol><h3 id="训练数据"><a href="#训练数据" class="headerlink" title="训练数据"></a>训练数据</h3><p>为了训练最佳的LLM, 高质量的训练集很重要. llama3使用超过15T的tokens来预训练, 这些tokens都来自于公开来源. llama3的训练时间是llama2的7倍, 代码量是其4倍. 为了应对即将来到的多语言用例, 预训练数据中有超过5%是非英文的, 由30多种语言. 但是在这些非英语上的性能会不如英语. </p><p>为了保证预训练数据的高质量, 他们开发了一系列的数据过滤管道(data-filtering pipelines), 这些pipelines包含heuristic filters(启发式过滤器), NSFW filters, semantic deduplication approaches(语义重复删除方法), 和text-quality classifier(文本质量分类器). 使用llama2生成训练数据用于llama3的文本质量分类器.</p><p>他们还进行实验以评估如何把不同来源的数据混合用于最终预训练的最优方式. 以确保能选择一种混合数据, 让llama3在各种用例(琐事, 历史, 编程等)均表现良好.</p><h3 id="扩展预训练"><a href="#扩展预训练" class="headerlink" title="扩展预训练"></a>扩展预训练</h3><p>扩展预训练, 通俗而言, 就是在使用大量数据集对模型预训练后, 如何让预训练模型更好的实现下游任务, 通过小的微调或者优化在下游实现好的性能. </p><p>llama3指定了一系列详细的扩展法则用于下游基准评定. 这些扩展法则让我们能选择最优数据组合, 对如何使用训练计算做出明智决策. 扩展法则还能让我们在实际训练模型之前预测模型在关键任务上的表现. </p><p>有关扩展行为的新发现: 尽管我们发现8B模型的Chinchilla最优训练计算量对应于200B个tokens, 但是在使用两个数据集以上的数据对模型训练后, 模型性能仍会继续提升. 使用高达15T的tokens对8B和70B模型训练后, 模型持续呈对数线性改善性能.<br>(是否可以理解为: llama模型的性能会随着数据量的增大而增大, 不论数据量有多大. 不会像CNN一样, 性能随着数据量的增大而先增大后减小)</p><p>并行化: 结合了三种并行, 数据并行化, 模型并行化, 和管道并行化. </p><h3 id="指令微调"><a href="#指令微调" class="headerlink" title="指令微调"></a>指令微调</h3><p>llama3对指令微调方法进行了创新. 他的后训练方法(post-training)包含: 监督微调(supervised fine-tuning SFT), 拒接采样(rejection sampling), 近端策略优化(proximal policy optimization PPO), 直接偏好优化(direct preference optimization DPO).<br>SFT中的prompt质量和PPO&amp;DPO中的偏好排名对对齐模型(aligned model)的性能有很大影响. 因此, 需要精心整理训练数据, 并对人工标注多轮质量保证.</p><p>通过 PPO 和 DPO 从偏好排名中学习也大大提高了 Llama 3 在推理和编码任务上的性能。我们发现，如果你问一个模型一个它很难回答的推理问题，模型有时会产生正确的推理轨迹：模型知道如何产生正确的答案，但不知道如何选择它。对偏好排名进行训练使模型能够学习如何选择它。</p><h2 id="构建llama3"><a href="#构建llama3" class="headerlink" title="构建llama3"></a>构建llama3</h2><p>为了让开发人员更方便自定义llama3, 他们有构建新的pytorch库和入门指南. 关于llama3的代码实现之后再讲. </p><p>并且, 他们还构建了一个系统级方法, 让开发者和使用者最大化的部署和使用llama系列模型.<br><img src="/2024/07/20/llama3/llama3-04.png" alt="llama系列模型的系统级方法"></p><p>关于如何使用llama3的功能, 这里有详细说明: <a href="https://github.com/meta-llama/llama-recipes">Llama Recipes</a>, 包含所有llama3开源代码, 从微调到模型评估.</p><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>llama3的8B和70B模型只是llama3系列的开始, 之后几个月会发布更多功能, 最大的模型有400B仍在训练中. 之后会发布包含多模态/多语言/更长上下文等具有新功能的模型. 完成llama3的训练后, Meta团队会写一个详细的研究论文.</p><h2 id="写在最后"><a href="#写在最后" class="headerlink" title="写在最后"></a>写在最后</h2><p>本文只是大概介绍了llama3的结构和评估, 但是有几个方面需要具体解释下: </p><ul><li>llama系列模型的具体结构.</li><li>llama模型的代码实现.</li><li>区分这四者: instruct learning, prompt learning和fine-tuning, instruction fine-tuning.</li><li>LLM的评估指标有哪些, 例如图1中的MMLU, GPQA, HumanEval, GSM-8K, MATH是什么意思?</li><li>scaling up pretraining扩展预训练是什么意思?</li><li>llama3中的分组查询策略是什么?</li></ul><p>这些细节问题请看其他博客.</p><h2 id="资源链接"><a href="#资源链接" class="headerlink" title="资源链接"></a>资源链接</h2><p>llama3的github代码: <a href="https://github.com/meta-llama/llama3?tab=readme-ov-file">llama3 github</a></p><p>llama3结构详解的官方文章: <a href="https://ai.meta.com/blog/meta-llama-3/">Introducing Meta Llama 3: The most capable openly available LLM to date</a></p><p>AI模型的Meta官方blog: <a href="https://ai.meta.com/blog/">AI news from Meta</a></p><p>访问这个网站下载模型: <a href="https://llama.meta.com/llama3/">Llama3 website</a></p><p>这里是llama3入门指南: <a href="https://llama.meta.com/docs/model-cards-and-prompt-formats/meta-llama-3">Getting Started Guide</a></p><p>这是如何使用llama的github示例: <a href="https://github.com/meta-llama/llama-recipes">Llama Recipes</a></p>]]></content>
+    
+    
+    <categories>
+      
+      <category>ML常见模型</category>
+      
+      <category>llama</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>llama</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>最大似然估计和CE的关系</title>
+    <link href="/2024/07/19/likelihood/"/>
+    <url>/2024/07/19/likelihood/</url>
+    
+    <content type="html"><![CDATA[<h1 id="最大似然估计和CE的关系"><a href="#最大似然估计和CE的关系" class="headerlink" title="最大似然估计和CE的关系"></a>最大似然估计和CE的关系</h1><p>为了理解CE和最大似然法之间的关系, 首先理解基本概念.</p><h2 id="信息量和熵"><a href="#信息量和熵" class="headerlink" title="信息量和熵"></a>信息量和熵</h2><p><strong>信息量</strong><br>信息量衡量了时间的不确定性, 一个时间发生的概率越大, 不确定性就越小, 信息量就越少. 公式: </p><script type="math/tex; mode=display">L(x_0) = - \log p(x_0)</script><p>事件$x_0$, 事件发生的概率是$p(x_0)$, 若事件必然发生, $p(x_0)=1$, 信息量为0.</p><p><strong>熵</strong><br>熵衡量了系统的混乱程度和不确定性. 熵越大,不确定性越大, 信息量越大. 熵的计算公式: </p><script type="math/tex; mode=display">H(p) = -\sum_{i=1}^n p(x_i) \log p(x_i) \tag{1}</script><p>其中事件变量X, $p(x_i)$表示事件$X=x_i$的概率, $- \log p(x_i)$就是事件$X=x_i$的信息量.</p><p>可以发现, 熵是信息量的期望, 各个事件发生概率乘以其信息量. 熵越大, X取值越难确定, 系统越不稳定. </p><h2 id="相对熵-relative-entropy"><a href="#相对熵-relative-entropy" class="headerlink" title="相对熵 relative entropy"></a>相对熵 relative entropy</h2><p>相对熵也称为KL散度(Kullback-Lerbler divergence), 表示一个随机变量的两个不同分布的距离.  假设$p(x)$和$q(x)$分别是离散随机变量X的两个分布概率, 则p相对于q的相对熵是: </p><script type="math/tex; mode=display">D_{KL}(p||q) = \sum_i p(x_i) \log \frac{p(x_i)}{q(x_i)} \tag{2}</script><p>相对熵的性质: </p><ol><li>如果$p(x)$和$q(x)$的分布相同, 则其相对熵=0.</li><li>相对熵不具有对称性, $D_{KL}(p||q)!=D_{KL}(q||p)$</li><li>$D_{KL}(p||q)\geq 0$</li></ol><h2 id="交叉熵-cross-entropy"><a href="#交叉熵-cross-entropy" class="headerlink" title="交叉熵 cross entropy"></a>交叉熵 cross entropy</h2><p>假设$p(x)$和$q(x)$分别是离散随机变量X的两个分布概率, 其中$p(x)$是目标分布, $q(x)$是预测分布, p和q的交叉熵可以看做, 使用预测分布表示目标分布的困难程度: </p><script type="math/tex; mode=display">H(p,q) = \sum_i p(x_i) \log \frac{1}{\log q(x_i)} = - \sum_i p(x_i) \log q(x_i) \tag{3}</script><p><strong>熵,交叉熵,相对熵的关系: </strong><br>根据上面的三个公式, 下面很容易推导: </p><script type="math/tex; mode=display">D_{KL}(p,q) = H(p,q) -H(p)</script><p>在机器学习中, 目标分布$p(x)$即真实分布是固定的, 所以$H(p)$是固定的, 最小化交叉熵等价于最小化相对熵. </p><h2 id="交叉熵损失函数-CE-loss"><a href="#交叉熵损失函数-CE-loss" class="headerlink" title="交叉熵损失函数 CE loss"></a>交叉熵损失函数 CE loss</h2><p>假设batch size=n, 是m分类问题, 交叉熵损失函数的公式: </p><script type="math/tex; mode=display">CELoss = -\frac{1}{n} \sum_{i=1}^n p(x_i) \log q(x_i) = -\frac{1}{n} \sum_{i=1}^n \sum_{j=1}^m p(x_i^j) \log q(x_i^j)</script><p>其中$p(x_i)$是真实label, $q(x_i)$是预测label, $x_i$是一个batch中的第i个向量, $x_i^j$是第i个向量的第j个元素.</p><h2 id="最大似然估计"><a href="#最大似然估计" class="headerlink" title="最大似然估计"></a>最大似然估计</h2><p>最大似然估计是一种参数估计. 现在对某个变量X, 我们知道它分布服从某种分布形态（二项分布/正态分布/指数分布等），但是分布的具体参数不知道。<br>此时可以借助从总体抽样的方式，估计未知参数。  </p><p>通过一个简单例子便于理解:<br>假设研究对象X的分布是二项分布，即0-1分布，其中1的概率是p。如果知道p的值，就知道了分布形态的全部。但现在只是到分布形态是二项分布, 不知道具体p值是什么. 就可以通过最大似然估计求p值.</p><p>具体方法是这样: 首先抽样, 得到样本集$X=[x_1, x_2, .., x_n]$, 包含n个样本, 独立同分布. 任何一个参数$x_i$的取值概率是$p(x_i|\theta)$, 其中$\theta$是这个分布函数的未知参数. (上例中x_i为0或者1, 未知参数是p)</p><p>则得到当前样本集的概率是: </p><script type="math/tex; mode=display">P(X)=P(x_1|\theta) P(x_2 | \theta) P(x_3| \theta) ... P(x_n | \theta)</script><p>这个$P(X)$是关于未知参数$\theta$的函数. 函数$P(X)$是参数$\theta$相对于样本集X的似然函数 likelihood, 可以写作: </p><script type="math/tex; mode=display">L(\theta) = L(x_1, x_2..x_n | \theta) = P(x_1|\theta) P(x_2 | \theta) ... P(x_n | \theta)</script><p>因为现在抽取到样本集X已成为既定事实, 这个事件发生了, 我们可以假设这个事件发生的概率尽可能大, 即我们要求未知参数$\theta$的值, 让这个似然函数$L(\theta)$的取值尽可能大, 这就是最大似然估计.</p><p>最大似然估计: 找到让似然函数$L(\theta)$的取值尽可能大的$\theta$值, $argmax L(\theta)$.</p><p>在求极值之前, 先取似然函数的对数, 得到对数似然函数. 因为似然函数是多个项的乘积, 可能会是多个小数相乘得到一个非常小的值, 造成下溢underflow. </p><p>对数似然函数: </p><script type="math/tex; mode=display">l(\theta) = \log L(\theta) = \log (P(x_1|\theta) P(x_2 | \theta) ... P(x_n | \theta)) = \sum_i \log P(x_i | \theta)</script><p>如何求$\theta$的值, 让对数似然函数的取值最大? 先对对数似然函数求关于$\theta$的偏导数, 令偏导=0, 得到似然方程. 然后求似然方程得到$\theta$的取值.</p><p><strong>总结, 最大似然估计的流程: </strong><br>(现在知道某个变量的分布函数, 但不知道具体参数, 通过最大似然估计求未知参数.)</p><ol><li>首先对变量X进行抽样, 得到样本集$X=[x_1, x_2, .., x_n]$.</li><li>得到似然函数 $L(\theta) =  P(x_1|\theta) … P(x_n | \theta)$</li><li>得到对数似然函数 $l(\theta) = \log L(\theta) $.</li><li>进行最大似然估计 $argmax_{\theta} l(\theta)$:<br> a. 把对数似然函数求关于$\theta$的偏导数, 令偏导=0, 得到似然方程.<br> b. 求解似然方程得到$\theta$的取值.</li></ol><h2 id="最大似然估计和交叉熵的关系"><a href="#最大似然估计和交叉熵的关系" class="headerlink" title="最大似然估计和交叉熵的关系"></a>最大似然估计和交叉熵的关系</h2><p>现在知道最大似然估计maximum likelihood estimation是: </p><script type="math/tex; mode=display">\theta_{ML} = argmax_{\theta} \sum_{i=1}^n \log p(x_i | \theta)</script><p>进行放缩, 两边除以样本个数n: </p><script type="math/tex; mode=display">\theta_{ML} = argmax_{\theta} \frac{1}{n} \sum_{i=1}^n \log p(x_i | \theta) \tag{a}</script><p>上述公式a是对随机变量X的函数$\log p(X | \theta)$求均值, 根据大数定理, 随着样本容量n的增加, 样本的算术平均值等于随机变量X的期望, 即: </p><script type="math/tex; mode=display">\frac{1}{n} \sum_{i=1}^n \log p(x_i | \theta) \rightarrow E_X(\log p(X|\theta))</script><p>其中, $E_X$表示变量X的函数$\log p(X | \theta)$的期望.</p><p>这样, 当样本集n很大时, 最大似然估计可以看做: </p><script type="math/tex; mode=display">\begin{aligned}\theta_{ML} &= argmax_{\theta} E_X(\log p(X|\theta))  \\&= argmin_{\theta} E_X(- \log p(X|\theta)) \end{aligned}</script><p>相对熵可以这样变换: </p><script type="math/tex; mode=display">\begin{aligned}D_{KL}(q||p) &= \sum_i q(x_i) \log \frac{q(x_i)}{p(x_i)} \\&=E_x \log(\frac{q(x)}{p(x)}) \\&= E_x ( \log q(x) - \log p(x)) \\&= E_x (\log q(x)) - E_x(\log p(x))\end{aligned}</script><p>其中$q(x)$是目标分布, 是固定的, 所以$E_x (\log q(x))$是固定的; $p(x)$是预测分布.</p><p>最小化$D_{KL}(q||p)$ $\Longleftrightarrow$ 最小化$(- E_x(\log p(x)))$ $\Longleftrightarrow$ 最大化似然估计. ($\Longleftrightarrow$表示‘等价于’)</p><p>因为</p><script type="math/tex; mode=display">D_{KL}(q||p) = H(q,p) -H(q)</script><p>最小化$D_{KL}(q||p)$等价于最小化$H(q,p)$.</p><p>所以: 最小化交叉熵$H(q,p)$ $\Longleftrightarrow$ 最大似然估计$argmax_{\theta}   l(x|\theta)$.<br>其中q是变量x的真实分布, p是x的预测分布, $\theta$是$p(x)$的未知参数. </p><h2 id="参考"><a href="#参考" class="headerlink" title="参考:"></a>参考:</h2><p>基础篇：<br><a href="https://www.jianshu.com/p/191c029ad369">https://www.jianshu.com/p/191c029ad369</a><br>进阶篇：<br><a href="https://www.cnblogs.com/wangguchangqing/p/12068084.html">https://www.cnblogs.com/wangguchangqing/p/12068084.html</a></p>]]></content>
+    
+    
+    <categories>
+      
+      <category>ML基础知识</category>
+      
+      <category>损失函数</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>损失函数</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>常见损失函数介绍</title>
+    <link href="/2024/07/19/loss-func/"/>
+    <url>/2024/07/19/loss-func/</url>
+    
+    <content type="html"><![CDATA[<h1 id="常见损失函数"><a href="#常见损失函数" class="headerlink" title="常见损失函数"></a>常见损失函数</h1><p>损失函数就是用于计算预测label和真实label之间差距的函数.</p><h2 id="MSE损失函数"><a href="#MSE损失函数" class="headerlink" title="MSE损失函数"></a>MSE损失函数</h2><p>MSE是mean squared error, 均方误差损失函数. 求两个向量的差的平方之和, 再对batch size=n求均值. 公式如下: </p><script type="math/tex; mode=display">MSE = \frac{1}{n}\sum_{i=1}^n(\hat y_i - y_i)^2=\frac{1}{n}\sum_{i=1}^n(\sum_{j=1}^M(\hat y_i^j - y_i^j)^2)</script><p>其中$y_i$是真实label向量, 是$\hat y_i$预测label向量, 向量大小是1*m, batch size=n.<br>如果batch size=1, 就是真实向量和预测向量的对应元素之差的平方, 再对所有m个位置求和. </p><p>MSE特点: </p><ul><li>损失函数的曲线光滑可导, 随着误差的减小, 梯度也减小, 利于函数收敛.</li><li>平方项, 对大误差有大的惩罚力度, 对小误差有小的惩罚力度.</li><li>如果样本中有离群点, MSE会给离群点赋予更高的权重，但是却是以牺牲其他正常数据点的预测效果为代价，这最终会降低模型的整体性能。</li></ul><h2 id="MAE平均绝对误差"><a href="#MAE平均绝对误差" class="headerlink" title="MAE平均绝对误差"></a>MAE平均绝对误差</h2><p>MAE: Mean absolute error, </p><script type="math/tex; mode=display">MAE =  \frac{1}{n} \sum_{i=1}^n |\hat y_i - y_i |</script><p>其中$y_i$是真实label向量, 是$\hat y_i$预测label向量, batch size=n. 向量对应元素之差的绝对值求和, 再在batch size维度求平均值. </p><p>特点: </p><ul><li>曲线呈现V形状，连续但在$\hat y_i - y_i =0$处不可导，计算机求解导数比较困难。而且 MAE 大部分情况下梯度都是相等的，这意味着即使对于小的损失值，其梯度也是大的。这不利于函数的收敛和模型的学习。</li><li>对离群点不敏感。没有平方项，惩罚力度一样。而MSE对离群点敏感。<br><img src="/2024/07/19/loss-func/loss01.png" alt="MAE对离群点不敏感, MSE对离群点敏感"></li></ul><h2 id="CE交叉熵损失函数"><a href="#CE交叉熵损失函数" class="headerlink" title="CE交叉熵损失函数"></a>CE交叉熵损失函数</h2><p>CE: cross entropy loss, 公式: </p><script type="math/tex; mode=display">L=-\frac{1}{n}\sum_i y_i \log p_i =-\frac{1}{n}\sum_i \sum_{j=1}^m y_i^j \log p_i^j</script><p>其中batch size=n, m是分类数 即向量是1*m大小的. $y_i$是真实向量, $p_i$是预测向量. $y_i^j$表示向量的第j个元素.</p><p>经常会提到CE和最大似然法的关系, 在面试中也可能问道. 什么事最大似然法, 以及CE和它到底有什么关系? 具体看这个博客: <a href="/2024/07/19/likelihood/" title="最大似然估计和CE的关系">最大似然估计和CE的关系</a></p><h2 id="infoNCE损失函数"><a href="#infoNCE损失函数" class="headerlink" title="infoNCE损失函数"></a>infoNCE损失函数</h2><p>infoNCE和CE loss很像. infoNCE在MoCo论文当中使用, 是无监督对比学习方法用到的损失函数. 公式: </p><script type="math/tex; mode=display">L_q = - \log \frac{e^{q\cdot k_{+} / \tau }}{\sum_{i=0}^K e^{q\cdot k_i/\tau}}</script><p>其中q和k+互为正样本对, 是从同一个图片经过不同图片增强得到的向量, q和k-互为负样本对, 是不同图片对应的向量. 一共有K个k- (negative key).<br>用向量点乘(对应元素之积的和)表示两个向量的相似性, 如分子中的$q\cdot k_{+}$越大表示这个正样本对越相似, 分母中是K个负样本对的点乘之和加上$q\cdot k_{+}$, 分母一共有K+1项.<br>其中$\tau$是温度系数.</p><h3 id="CE和infoNCE的区别"><a href="#CE和infoNCE的区别" class="headerlink" title="CE和infoNCE的区别:"></a>CE和infoNCE的区别:</h3><p>在计算交叉熵损失函数CE之前, 一般会让预测向量经过一个softmax变为概率预测向量, 如果是一个K+1分类问题, 真实label向量形如$y=[1,0,0…,0]$, 而预测向量形如$\hat y = [y^0, y^1, …, y^{K}]$, 经过softmax后</p><script type="math/tex; mode=display">p=softmax(\hat y) = [\frac{e^{y^0}}{\sum e^{y^i}},\frac{e^{y^1}}{\sum e^{y^i}}, ..., \frac{e^{y^K}}{\sum e^{y^i}} ]</script><p>假设batch size=1, 求CE: </p><script type="math/tex; mode=display">H(y, p) = - \sum_{i=0}^K y^i \log p^i = - log p^0 =- \log \frac{e^{y^0}}{\sum_{i=0}^K e^{y^i}}</script><p>和上面的infoNCE公式很像.  </p><p><strong>CE和infoNCE的区别: </strong><br>CE中, 真实向量是一个one-hot向量, 长度是分类数.</p><p>无监督的对比学习没有真实label向量, 所以infoNCE中的K不是分类数, 而是表示的negative key的个数, 用长度为K的queue来存储负样本向量k-.</p><p>infoNCE可以看做特殊的CE, 即分类数为K+1, 且真实类别是index=0处的分类任务. </p><p>总结一下, CE和infoNCE的区别: </p><ul><li>CE用于分类任务时, 是有标签数据, K表示类别数; 而infoNCE用于无监督的对比学习, 是无标签数据, K表示negtive key的个数.</li><li>infoNCE把k+和K个k-向量拼起来, k+在index=0的位置, 得到长度为K+1的序列, 可以理解为: 真实类别为0的K+1分类任务.</li></ul><p><strong>温度系数$\tau$的作用: </strong><br>$\tau$是超参数, 很重要. 温度系数用于控制预测向量logits的分布形状. </p><p>如果$\tau$很大, 则$q\cdot k / \tau$变小, logits分布变平滑, 对比损失函数对所有负样本一视同仁, 不会特别关注某个负样本, 模型的学习没有轻重.</p><p>相反地，如果$\tau$变小，logits分布的值$q\cdot k / \tau$变大，分布变得更不均匀，更peak。模型会特别关注困难的负样本（也就是$q\cdot k$更大的样本对，也就是潜在的正样本对），导致模型收敛困难，泛化能力差。</p><p>总之，温度系数的作用就是它控制了模型对负样本的区分度。</p>]]></content>
+    
+    
+    <categories>
+      
+      <category>ML基础知识</category>
+      
+      <category>损失函数</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>损失函数</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>GPT2模型原理的通俗理解</title>
     <link href="/2024/07/10/gpt01/"/>
     <url>/2024/07/10/gpt01/</url>
