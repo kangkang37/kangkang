@@ -16,27 +16,25 @@
   <meta name="author" content="kangkang">
   <meta name="keywords" content="hexo, blog, machine learning">
   
-    <meta name="description" content="llama3模型的评估指标上一个博客概述了llama3模型的性能和创新点, 通俗理解llama3的性能和创新, 这里详细介绍llama3中的评估指标是什么, 如何实现的. llama3的evaluation的细节看这里: llama3_eval_details,  llama3的pre-trained和instruct-aligned模型的评估结果如下图: 为了能看懂图中的几个评测指标, 首先理解">
+    <meta name="description" content="llama2模型的结构和原理llama2模型是Meta在2023年3月份左右提出的大语言模型. 它声称以更小的体积, 在多数任务上超过GPT-3的性能. 模型的github代码和research paper看下方的资源链接. 模型使用的transformer的decoder结构, 在结构上和GPT非常类似. llama2有下面几个特点:   Pre-Norm RMS Norm (Root Mean">
 <meta property="og:type" content="article">
-<meta property="og:title" content="llama3模型的评估指标">
-<meta property="og:url" content="https://kangkang37.github.io/2024/07/21/llama3-eval/index.html">
+<meta property="og:title" content="llama2模型的结构和原理">
+<meta property="og:url" content="https://kangkang37.github.io/2024/07/21/llama2/index.html">
 <meta property="og:site_name" content="康康博客">
-<meta property="og:description" content="llama3模型的评估指标上一个博客概述了llama3模型的性能和创新点, 通俗理解llama3的性能和创新, 这里详细介绍llama3中的评估指标是什么, 如何实现的. llama3的evaluation的细节看这里: llama3_eval_details,  llama3的pre-trained和instruct-aligned模型的评估结果如下图: 为了能看懂图中的几个评测指标, 首先理解">
+<meta property="og:description" content="llama2模型的结构和原理llama2模型是Meta在2023年3月份左右提出的大语言模型. 它声称以更小的体积, 在多数任务上超过GPT-3的性能. 模型的github代码和research paper看下方的资源链接. 模型使用的transformer的decoder结构, 在结构上和GPT非常类似. llama2有下面几个特点:   Pre-Norm RMS Norm (Root Mean">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://kangkang37.github.io/2024/07/21/llama3-eval/llama3/llama3-01.png">
-<meta property="og:image" content="https://kangkang37.github.io/2024/07/21/llama3-eval/llama3/llama3-03.png">
-<meta property="og:image" content="https://kangkang37.github.io/2024/07/21/llama3-eval/llama3-eval-01.png">
-<meta property="article:published_time" content="2024-07-21T04:06:47.000Z">
-<meta property="article:modified_time" content="2024-07-21T21:04:40.723Z">
+<meta property="og:image" content="https://kangkang37.github.io/2024/07/21/llama2/llama2-01.png">
+<meta property="article:published_time" content="2024-07-21T18:06:11.000Z">
+<meta property="article:modified_time" content="2024-07-21T19:15:12.495Z">
 <meta property="article:author" content="kangkang">
 <meta property="article:tag" content="llama">
-<meta property="article:tag" content="待完成">
+<meta property="article:tag" content="未完成">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://kangkang37.github.io/2024/07/21/llama3-eval/llama3/llama3-01.png">
+<meta name="twitter:image" content="https://kangkang37.github.io/2024/07/21/llama2/llama2-01.png">
   
   
   
-  <title>llama3模型的评估指标 - 康康博客</title>
+  <title>llama2模型的结构和原理 - 康康博客</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -234,7 +232,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="llama3模型的评估指标"></span>
+            <span id="subtitle" data-typed-text="llama2模型的结构和原理"></span>
           
         </div>
 
@@ -250,8 +248,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2024-07-21 00:06" pubdate>
-          2024年7月21日 凌晨
+        <time datetime="2024-07-21 14:06" pubdate>
+          2024年7月21日 下午
         </time>
       </span>
     
@@ -262,7 +260,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          1.2k 字
+          684 字
         
       </span>
     
@@ -273,7 +271,7 @@
         
         
         
-          10 分钟
+          6 分钟
         
       </span>
     
@@ -318,12 +316,12 @@
       <div class="container nopadding-x-md" id="board-ctn">
         <div id="board">
           <article class="post-content mx-auto">
-            <h1 id="seo-header">llama3模型的评估指标</h1>
+            <h1 id="seo-header">llama2模型的结构和原理</h1>
             
               <p id="updated-time" class="note note-info" style="">
                 
                   
-                    本文最后更新于 2024年7月21日下午5点04分
+                    本文最后更新于 2024年7月21日下午3点15分
                   
                 
               </p>
@@ -331,49 +329,56 @@
             
               <div class="markdown-body">
                 
-                <h1 id="llama3模型的评估指标"><a href="#llama3模型的评估指标" class="headerlink" title="llama3模型的评估指标"></a>llama3模型的评估指标</h1><p>上一个博客概述了llama3模型的性能和创新点, <a href="/2024/07/20/llama3/" title="通俗理解llama3的性能和创新">通俗理解llama3的性能和创新</a>, 这里详细介绍llama3中的评估指标是什么, 如何实现的.</p>
-<p>llama3的evaluation的细节看这里: <a target="_blank" rel="noopener" href="https://github.com/meta-llama/llama3/blob/main/eval_details.md">llama3_eval_details</a>, </p>
-<p>llama3的pre-trained和instruct-aligned模型的评估结果如下图:<br><img src="llama3/llama3-01.png" srcset="/img/loading.gif" lazyload alt="图1: llama3的pre-trained模型的评估结果"><br><img src="llama3/llama3-03.png" srcset="/img/loading.gif" lazyload alt="图2: llama3的instruct模型的评估结果"></p>
-<p>为了能看懂图中的几个评测指标, 首先理解这几个概念.</p>
-<h2 id="zero-shot和few-shot"><a href="#zero-shot和few-shot" class="headerlink" title="zero-shot和few-shot"></a>zero-shot和few-shot</h2><h3 id="zero-shot-learning零样本学习"><a href="#zero-shot-learning零样本学习" class="headerlink" title="zero-shot learning零样本学习"></a>zero-shot learning零样本学习</h3><p>论文: <a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1707.00600v4">Zero-Shot Learning - A Comprehensive Evaluation of the Good, the Bad and the Ugly</a></p>
-<p>零样本学习, 让模型能对从未见过的对象进行分类, 让机器具有推理能力. 具体地, 训练集数据和测试集数据没有交集, 利用训练集训练模型后, 让模型对测试集的从未见过的对象能进行分类. zero-shot是指要分类的对象是一次也不学习的. </p>
-<p>例子: 训练集包含马/老虎/熊猫的样本和对应标签, 以及马/老虎/熊猫的描述, 让模型能学会识别马/老虎/熊猫; 训练集还有斑马的描述, 但是没有斑马样本. 然后测试集中的给出一个斑马样本, 模型尽管没见过斑马, 也能识别这个图片是斑马. </p>
-<p>这就是让模型具有了推理能力. 利用过去的知识, 推理出新对象的具体形态, 从而对从未见过的类别进行辨认. zero-shot learning让模型具有辨认新事物的能力.</p>
-<h3 id="one-shot-learning-单样本学习"><a href="#one-shot-learning-单样本学习" class="headerlink" title="one-shot learning 单样本学习"></a>one-shot learning 单样本学习</h3><p>one-shot learning是指这个类别的训练样本只有一个, 依然能对这个类别做到预测. </p>
-<p>因为在大数据集上学到了general knowledge, 即一个映射$X-&gt;Y$, 其中类别X有很多训练数据, 类别Y只有一个训练样本. 尽管Y很少, 但是因为学习到了映射$X-&gt;Y$, 也就能实现对小数据Y的预测.</p>
-<p>one-shot learning的意义:</p>
+                <h1 id="llama2模型的结构和原理"><a href="#llama2模型的结构和原理" class="headerlink" title="llama2模型的结构和原理"></a>llama2模型的结构和原理</h1><p>llama2模型是Meta在2023年3月份左右提出的大语言模型. 它声称以更小的体积, 在多数任务上超过GPT-3的性能.</p>
+<p>模型的github代码和research paper看下方的资源链接.</p>
+<p>模型使用的transformer的decoder结构, 在结构上和GPT非常类似. llama2有下面几个特点: </p>
 <ul>
-<li>减少训练数据. 深度学习通常需要很多数据, 但是one-shot能让某个类别的训练数据减少到一个.</li>
-<li>新类别数据出现时, 无需重新训练. 传统的NN网络, 在新类别出现后需要重新对所有类别训练, 但是one-shot learning只需要对新增类别训练即可.</li>
+<li>Pre-Norm</li>
+<li>RMS Norm (Root Mean Square Layer Normalization)</li>
+<li>SwiGLU激活函数</li>
+<li>RoPE旋转位置编码</li>
 </ul>
-<p>one-shot learning是few-shot learning的一种特殊情况.</p>
-<h3 id="few-shot-learning-小样本学习"><a href="#few-shot-learning-小样本学习" class="headerlink" title="few-shot learning 小样本学习"></a>few-shot learning 小样本学习</h3><p>训练集中某些类别的样本只有少量, 就是few-shot learning. </p>
-<h3 id="zero-shot和few-shot的区别"><a href="#zero-shot和few-shot的区别" class="headerlink" title="zero-shot和few-shot的区别"></a>zero-shot和few-shot的区别</h3><p>小样本学习是使用少量训练数据来获得准确分类预测效果. 零样本学习是让模型预测从未出现的类别. </p>
-<p>下面具体看看llama3的这几个基准测试是如何实现: </p>
-<h2 id="MMLU基准测试"><a href="#MMLU基准测试" class="headerlink" title="MMLU基准测试"></a>MMLU基准测试</h2><p>MMLU(Massive Multitask Language Understand)数据集, 为了测试大模型对通用知识的语言理解能力.</p>
-<p>llama3使用MMLU 5-shot evaluation, 就是模型先使用5个example problems训练一下, 然后再使用测试集中其他样本来测试. 这样能展示这个模型从少量task-specific信息中概括理解知识的能力.</p>
-<p>MMLU包含57个学科的问题, 例如天文/生物/物理/微观经济学等. </p>
-<p>llama3大模型的MMLU得分是它回答问题的正确率.</p>
-<p>这里可以看部分MML问题的样例: <a target="_blank" rel="noopener" href="https://inflection.ai/assets/MMLU-Examples.pdf">MMLU examples</a><br><img src="/2024/07/21/llama3-eval/llama3-eval-01.png" srcset="/img/loading.gif" lazyload alt="部分MMLU样例数据"></p>
-<!-- 是衡量大语言模型在多语言方面的能力的基准测试. 避免仅关注主流语言而对其他语言置之不理, 对构建普适性的多语言模型至关重要. 它通常包含多种不同的语言任务, 如文本分类/问答/摘要生成等, 对多种语言进行测试.
-
-为了计算MMLU, 首先分别计算各种语言在该任务上的性能, 获得准确率/召回率/F1分数等指标, 针对每种语言计算在该任务的性能均值. 然后对所有语言的均值进行加权平均, 得到全局MMLU.
-
-举例来说，假设有一个大型语言模型在英语、中文和德语上进行了文本分类任务的评估。模型在英语上的准确率为0.7，中文为0.6，德语为0.5。那么，MMLU就是这三个语言准确率的加权平均值。如果英语、中文和德语的权重分别为0.4、0.3和0.3，那么 MMLU 就是 $0.4\times 0.7 + 0.3 \times 0.6 + 0.3 \times 0.5 = 0.61$。
-
-实际应用中, MMLU会针对不同任务而设定不同权重, 以适应特定场景需求. -->
-<h2 id="GPQA基准测试"><a href="#GPQA基准测试" class="headerlink" title="GPQA基准测试"></a>GPQA基准测试</h2><p>GPQA(Graduate-Level Google-Proof Q&amp;A Benchmark), 是一个Google验证问答的基准测试, 评估模型在生物/物理/化学等学科领域的深入程度. 该数据集包含448个多项选择题, 这些问题难度很高, 即使是相关学科博士专家回答, 也只有65%正确率, 非专家的正确率低至34%.</p>
-<p>llama3也是根据回答问题的正确率来评分.</p>
-<p>这里是GPQA论文, 里面有样例: <a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2311.12022">GPQA: A Graduate-Level Google-Proof<br>Q&amp;A Benchmark</a></p>
-<h2 id="HumanEval基准测试"><a href="#HumanEval基准测试" class="headerlink" title="HumanEval基准测试"></a>HumanEval基准测试</h2><p>HumanEval用于评估模型的代码能力. 根据<a target="_blank" rel="noopener" href="https://github.com/meta-llama/llama3/blob/main/eval_details.md">llama3 eval details</a>, 它使用$Pass@1$矩阵.</p>
-<p>HumanEval的论文: <a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2107.03374">Evaluating Large Language Models Trained on Code</a></p>
-<h2 id="GSM基准测试"><a href="#GSM基准测试" class="headerlink" title="GSM基准测试"></a>GSM基准测试</h2><p>GSM-8K(Grade School Math 8K)包含8.5K道高质量的多语言小学数学题.</p>
-<p>在这个基准测试中, Meta使用8-shot chain-of-though的prompt, 和这个论文的方法一样: <a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2201.11903">Chain-of-Thought Prompting Elicits Reasoning<br>in Large Language Models</a>. 使用$maj@1$矩阵, 该矩阵评估模型排名靠前的预测匹配真实类别的频率.</p>
-<h2 id="MATH评测"><a href="#MATH评测" class="headerlink" title="MATH评测"></a>MATH评测</h2><p>MATH数据集包含12.5K个数学问题, 用于衡量LLM的解决数学问题的能力. </p>
-<p>Meta使用4-shot chain-of-thought prompt, 参考论文: <a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2206.14858">https://arxiv.org/pdf/2206.14858</a>, 论文19页有例子. 和GSM-8K一样, 使用$maj@1$矩阵.</p>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考:"></a>参考:</h2><p><a target="_blank" rel="noopener" href="https://medium.com/@ingridwickstevens/more-llm-acronyms-an-explainer-on-llama-3s-performance-benchmark-values-36722c6dcabb">Medium_Ingrid Stevens: Llama 3’s Performance Benchmark Values Explained</a></p>
-<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/zcyzcyjava/article/details/127006287">CSDN: 什么是zero-shot, one-shot和few-shot Learning</a></p>
-<p><a target="_blank" rel="noopener" href="https://www.ctyun.cn/developer/article/503404435451973">什么是衡量大语言模型能力的MMLU参数指标</a></p>
+<p>下面详细看看这几个特点的原理是什么: </p>
+<h2 id="Pre-Norm和Post-Norm"><a href="#Pre-Norm和Post-Norm" class="headerlink" title="Pre-Norm和Post-Norm"></a>Pre-Norm和Post-Norm</h2><p>Bert模型采用的Post-Norm方法, Llama模型采用的Pre-Norm方法. 这两个方法有什么区别?</p>
+<p>简单而言, Post-Norm就是在Add操作之后进行Norm操作. 而Pre-Norm就是在Norm之后进行Add操作. 其中Add操作就是残差连接$F(x)+x$, Norm就是归一化操作, 例如Layer Norm, Group Norm, Batch Norm, Instance Norm是不同的归一化方法. </p>
+<p><img src="/2024/07/21/llama2/llama2-01.png" srcset="/img/loading.gif" lazyload alt="对比pre-norm和post-norm方法"></p>
+<p>Post-Norm的公式: </p>
+<script type="math/tex; mode=display">
+x_{t+1} = Norm(x_t + F_t(x_t))</script><p>Pre-Norm的公式: </p>
+<script type="math/tex; mode=display">
+x_{t+1} = x_t + F_t(Norm(x_t))</script><h2 id="RMS-Norm"><a href="#RMS-Norm" class="headerlink" title="RMS Norm"></a>RMS Norm</h2><p>RMS Normalization也是一种归一化方法, 是对LayerNorm的改进. RMS Norm没有做re-center操作(移除了LayerNorm分子的均值项), 不是使用的整个样本的均值和方差, 而是使用的平方根的均值来归一化. </p>
+<p>RMS Norm的公式: </p>
+<script type="math/tex; mode=display">
+\bar{a_i} = \frac{a_i}{RMS(a)}g_i \\
+RMS(a) = \sqrt(\frac{1}{n} \sum_{i=1}^n a_i^2)</script><p>Layer Norm公式: </p>
+<script type="math/tex; mode=display">
+\bar{a_i}=\frac{a_i - E(a_i)}{\sqrt(Var(a_i)+\epsilon)} * \gamma + \beta</script><h2 id="SwiGLU"><a href="#SwiGLU" class="headerlink" title="SwiGLU"></a>SwiGLU</h2><p>Llama和PaLM都采用SwiGLU替代了原先基于ReLU的前馈神经网络FFN.</p>
+<h3 id="什么是GLU"><a href="#什么是GLU" class="headerlink" title="什么是GLU"></a>什么是GLU</h3><p>SwiGLU是来自于GLU, GLU全称Gated Linear Unit, 门控线性单元函数. </p>
+<h3 id="什么是FFN"><a href="#什么是FFN" class="headerlink" title="什么是FFN"></a>什么是FFN</h3><p>FFN(feed forward network)前馈神经网络. 就是两层的MLP(Multilayer Perceptron多层感知机), 第一层MLP会把输入的向量升维, 然后经过激活激活函数, 再第二层MLP会把向量降维. </p>
+<p>FFN公式如下, 以ReLU激活函数为例: </p>
+<script type="math/tex; mode=display">
+FFN(x, W_1, W_2, b_1, b_2) = ReLU(xW_1+b_1)W_2+b_2</script><p>也可能会把偏置项去掉: </p>
+<script type="math/tex; mode=display">
+FFN(x, W_1, W_2) = ReLU(xW_1)W_2</script><p>原来使用的ReLU激活函数, 在llama2论文中, 把ReLU替换为Swish激活函数. 得到新的FFN.</p>
+<p>…待完成</p>
+<p>参考: <a target="_blank" rel="noopener" href="https://mingchao.wang/1fb1JNJ6/">https://mingchao.wang/1fb1JNJ6/</a></p>
+<h2 id="RoPE旋转位置编码"><a href="#RoPE旋转位置编码" class="headerlink" title="RoPE旋转位置编码"></a>RoPE旋转位置编码</h2><p>位置编码</p>
+<h2 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h2><h2 id="写在最后"><a href="#写在最后" class="headerlink" title="写在最后"></a>写在最后</h2><p>还有部分需要完善: </p>
+<ol>
+<li>post-norm和pre-norm的区别, 哪种情况下使用哪种方法. 参考: <a target="_blank" rel="noopener" href="https://mingchao.wang/rh9M0DCq/">https://mingchao.wang/rh9M0DCq/</a>, <a target="_blank" rel="noopener" href="https://spaces.ac.cn/archives/9009">https://spaces.ac.cn/archives/9009</a></li>
+</ol>
+<ol>
+<li>各种归一化normalization方法的介绍和对比. 会另外开一个post介绍.</li>
+</ol>
+<ol>
+<li>区分归一化normalization, 标准化standardization, 正则化regularization. 参考: <a target="_blank" rel="noopener" href="https://www.cnblogs.com/douza/p/14922402.html">https://www.cnblogs.com/douza/p/14922402.html</a></li>
+</ol>
+<h2 id="资源链接和参考"><a href="#资源链接和参考" class="headerlink" title="资源链接和参考"></a>资源链接和参考</h2><p>llama2官方GitHub代码: <a target="_blank" rel="noopener" href="https://github.com/meta-llama/llama?tab=readme-ov-file">llama2 github code</a></p>
+<p>llama2论文: <a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2302.13971">LLaMA: Open and Efficient Foundation Language Models</a></p>
+<p>llama2 research paper, 有70多页: <a target="_blank" rel="noopener" href="https://ai.meta.com/research/publications/llama-2-open-foundation-and-fine-tuned-chat-models/">llama2 research paper</a></p>
+<p>从Meta Llama官网了解前沿llama资讯: <a target="_blank" rel="noopener" href="https://llama.meta.com/">Meta Llama官网</a></p>
+<p>GLU论文: <a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1612.08083.pdf">GLU论文</a>, SwiGLU论文: <a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2002.05202.pdf">SwiGLU论文</a></p>
+<p>参考这几个文章: <a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_44826203/article/details/129255185">CSDN: Llama细节和代码</a>, <a target="_blank" rel="noopener" href="http://www.sniper97.cn/index.php/note/deep-learning/note-deep-learning/4401/">Sniper深度学习笔记</a>, <a target="_blank" rel="noopener" href="https://mingchao.wang/1fb1JNJ6/">GLU和SwiGLU</a></p>
 
                 
               </div>
@@ -416,7 +421,7 @@
       
         <a href="/tags/llama/" class="print-no-link">#llama</a>
       
-        <a href="/tags/%E5%BE%85%E5%AE%8C%E6%88%90/" class="print-no-link">#待完成</a>
+        <a href="/tags/%E6%9C%AA%E5%AE%8C%E6%88%90/" class="print-no-link">#未完成</a>
       
     </div>
   
@@ -428,8 +433,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>llama3模型的评估指标</div>
-      <div>https://kangkang37.github.io/2024/07/21/llama3-eval/</div>
+      <div>llama2模型的结构和原理</div>
+      <div>https://kangkang37.github.io/2024/07/21/llama2/</div>
     </div>
     <div class="license-meta">
       
@@ -473,18 +478,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2024/07/21/llama2/" title="llama2模型的结构和原理">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">llama2模型的结构和原理</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2024/07/20/terms01/" title="ML专业术语I——instruct学习, prompt学习和MLLM优化">
-                        <span class="hidden-mobile">ML专业术语I——instruct学习, prompt学习和MLLM优化</span>
+                      <a href="/2024/07/21/llama3-eval/" title="llama3模型的评估指标">
+                        <span class="hidden-mobile">llama3模型的评估指标</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
