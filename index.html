@@ -259,6 +259,74 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h2 class="index-header">
         
+        <a href="/2024/07/29/sentencepiece/" target="_self">
+          详细介绍Google的SentencePiece
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/07/29/sentencepiece/" target="_self">
+        <div>
+          Google的SentencePiece分词器什么是SentencePieceSentencePiece是Google推出的sub-word开源工具包. 它是一个无监督的文本tokenizer和detokenizer, 主要用于基于神经网络的文本生成系统, 其中词汇量是在模型训练之前预先确定的. SentencePiece实现子词单元(例如byte-pair-encoding(BPE), 和uni
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-07-29 19:28" pubdate>
+              2024-07-29
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/ML%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" class="category-chain-item">ML基础知识</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/ML%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/Tokenizer/" class="category-chain-item">Tokenizer</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/tokenizer/">#tokenizer</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
         <a href="/2024/07/21/llama2/" target="_self">
           llama2模型的结构和原理
         </a>
@@ -267,7 +335,7 @@
       
       <a class="index-excerpt index-excerpt__noimg" href="/2024/07/21/llama2/" target="_self">
         <div>
-          llama2模型的结构和原理llama2模型是Meta在2023年3月份左右提出的大语言模型. 它声称以更小的体积, 在多数任务上超过GPT-3的性能. 模型的github代码和research paper看下方的资源链接. 模型使用的transformer的decoder结构, 在结构上和GPT非常类似. llama2有下面几个特点:   Pre-Norm RMS Norm (Root Mean
+          llama2模型的原理和代码详解llama2模型是Meta在2023年3月份左右提出的大语言模型. 它声称以更小的体积, 在多数任务上超过GPT-3的性能. 模型的github代码和research paper看下方的资源链接. 下面我会结合llama2的官方源码来通俗解释llama2是如何实现文本生成和对话功能.  整体流程简单而言, llama2的流程是这样的(以文本补全为例):输入一段文本,
         </div>
       </a>
 
@@ -314,139 +382,6 @@
             <i class="iconfont icon-tags"></i>
             
               <a href="/tags/llama/">#llama</a>
-            
-              <a href="/tags/%E6%9C%AA%E5%AE%8C%E6%88%90/">#未完成</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/2024/07/21/llama3-eval/" target="_self">
-          llama3模型的评估指标
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/07/21/llama3-eval/" target="_self">
-        <div>
-          llama3模型的评估指标上一个博客概述了llama3模型的性能和创新点, 通俗理解llama3的性能和创新, 这里详细介绍llama3中的评估指标是什么, 如何实现的. llama3的evaluation的细节看这里: llama3_eval_details,  llama3的pre-trained和instruct-aligned模型的评估结果如下图: 为了能看懂图中的几个评测指标, 首先理解
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2024-07-21 00:06" pubdate>
-              2024-07-21
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/ML%E5%B8%B8%E8%A7%81%E6%A8%A1%E5%9E%8B/" class="category-chain-item">ML常见模型</a>
-  
-  
-    <span>></span>
-    
-  <a href="/categories/ML%E5%B8%B8%E8%A7%81%E6%A8%A1%E5%9E%8B/llama/" class="category-chain-item">llama</a>
-  
-  
-
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/llama/">#llama</a>
-            
-              <a href="/tags/%E5%BE%85%E5%AE%8C%E6%88%90/">#待完成</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/2024/07/20/terms01/" target="_self">
-          ML专业术语I——instruct学习, prompt学习和MLLM优化
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/07/20/terms01/" target="_self">
-        <div>
-          ML专业术语I——instruct学习和prompt学习在大语言模型中, instruct学习, prompt学习, fine-tuning, warmup, profile是很常见的专业术语, 不理解它们会造成后续学习的障碍. 下面会理解和区分这几个概念.  fine-tuning微调模型微调, 是指在预训练的基础上, 针对特定的任务, 对部分或者全部参数进行进一步的训练和调整.  预训练模型是
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2024-07-20 22:31" pubdate>
-              2024-07-20
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/ML%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" class="category-chain-item">ML基础知识</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%BE%85%E5%AE%8C%E6%88%90/">#待完成</a>
             
           </div>
         
@@ -871,6 +806,69 @@
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
             <time datetime="2024-07-10 02:14" pubdate>
+              2024-07-10
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/" class="category-chain-item">论文精读</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/">#论文精读</a>
+            
+              <a href="/tags/%E6%A8%A1%E5%9E%8B%E9%87%8F%E5%8C%96/">#模型量化</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2024/07/10/papers-paper03-cpt/" target="_self">
+          CPT Cyclic Precision Training 论文精读
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/07/10/papers-paper03-cpt/" target="_self">
+        <div>
+          CPT cyclic precision training 论文精读今天精读这篇论文:CPT: EFFICIENT DEEP NEURAL NETWORK TRAINING VIA CYCLIC PRECISION官方代码在这里:github-gatech-eic-cpt Abstract低精度深度神经网络（DNN）训练由于减少精度是提高DNN训练时间/能量效率的最有效手段之一而受到了极大的关注。
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-07-10 01:18" pubdate>
               2024-07-10
             </time>
           </div>
